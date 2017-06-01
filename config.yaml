@@ -1,0 +1,9 @@
+#This key has a value with the list of tags that should be deleted from the dicom file
+deletions:
+  - RescaleIntercept
+  - RescaleSlope
+
+#This dictionary has a dictionary of tags whose value should be modified
+modifications:
+  PatientName: Anonymous
+  PatientBirthDate: "19990909"

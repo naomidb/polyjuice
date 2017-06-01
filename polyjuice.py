@@ -2,15 +2,40 @@ import os
 import os.path
 import dicom
 from dicom.errors import InvalidDicomError
+import yaml
+from docopt import docopt
 
-def deletion(deletion_pointer):
-    del deletion_pointer.RescaleIntercept
-    del deletion_pointer.RescaleSlope
-    del deletion_pointer.RescaleType
-    #use config file for additional deletions
+def raid_snapes_cupboard():
+    #find what needs to be modified or deleted from config file
+    #config_path = args.get('config.yaml', None)
+    config_path = 'config.yaml'
+    if config_path:
+        with open(config_path, 'r') as config_file:
+            try:
+                config = yaml.load(config_file.read())
+            except yaml.YAMLError as exc:
+                print(exc)
+        delete_me = config.get('deletions')
+        modify_me = config.get('modifications')
+        return (delete_me, modify_me)
 
-def modification(modification_pointer):
-    #use config file for modified values
+def deletion(deletion_pointer, delete_me):
+    #use list from config file
+    for key in delete_me:
+        ingredient = deletion_pointer.data_element(key).tag
+        del deletion_pointer[ingredient]
+        print ("{} deleted".format(key))
+
+def modification(modification_pointer, modify_me):
+    #use dictionary from config file
+    for key in modify_me:
+        ingredient = modification_pointer.data_element(key)
+        ingredient.value = modify_me[key]
+        print ("{} changed".format(key))
+
+def brew(dataset, out, filename):
+    output = os.path.join(out, filename)
+    dataset.save_as(output)
 
 def main():
     import sys
@@ -20,14 +45,21 @@ def main():
         sys.exit()
     in_dir, out_dir = sys.argv[1:]
 
+    delete_me, modify_me = raid_snapes_cupboard()
+
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     for file in os.listdir(in_dir):
-        with open(file) as working_file:
-            dicom_pointer = dicom.read_file("working_file")
-            deletion(dicom_pointer)
-            modification(dicom_pointer)
+        try: 
+            with open(os.path.join(in_dir, file)) as working_file:
+                dicom_pointer = dicom.read_file(working_file, force=True)
+                deletion(dicom_pointer, delete_me)
+                modification(dicom_pointer, modify_me)
+                brew(dicom_pointer, out_dir, file)
+        except Exception, e:
+            print (file)
+            print (str(e))
 
 if __name__ == '__main__':
     main()

@@ -18,3 +18,12 @@ Example
 
 ### Changed
  * Changed something to make more awesome (DevMattm) 
+
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+
+##[0.0.1]
+ * Add gitignore
+ * Create README.md, CHANGELOG.md, AUTHORS and LICENSE
+ * Add config file
+ * Write polyjuice.py
