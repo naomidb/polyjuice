@@ -2,7 +2,7 @@
 docstr = """
 Polyjuice
 
-Usage: polyjuice.py [-hz] (<input_path> <output_path>) [-z --zip]
+Usage: polyjuice.py [-hz] (<input_path> <output_path>) [-z <zip_output_path>]
 
 Options:
   -h --help                                     show this message and exit
@@ -26,7 +26,7 @@ from docopt import docopt
 
 input_dir = '<input_path>'
 output_dir = '<output_path>'
-
+zip_output_dir = '<zip_output_path>'
 def raid_snapes_cupboard():
     #find what needs to be modified or deleted from config file
     #config_path = args.get('config.yaml', None)
@@ -97,7 +97,8 @@ def main(args):
                 print("{} failed".format(name))
                 print (str(e))
     # Working on converting into ZIP folder
-    shutil.make_archive(out_dir, 'zip', out_dir)
+    if(args.get(zip_output_dir)):
+        shutil.make_archive(out_dir, 'zip', out_dir)
 
     # Checking if the file is ISO
     if flag == True:
