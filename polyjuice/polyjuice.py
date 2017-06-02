@@ -1,6 +1,7 @@
 import os
 import os.path
 import dicom
+import shutil
 from dicom.errors import InvalidDicomError
 import yaml
 from docopt import docopt
@@ -75,6 +76,9 @@ def main():
             except Exception, e:
                 print("{} failed".format(name))
                 print (str(e))
+    # Get output through changed filename os.rename(src, dst)
+    # Working on converting into ZIP folder
+    shutil.make_archive(out_dir, 'zip', out_dir)
 
     if flag == True:
         # Unmount
