@@ -43,7 +43,17 @@ def main():
         #check for proper number of args
         print()
         sys.exit()
-    in_dir, out_dir = sys.argv[1:]
+    dicom_dir, out_dir = sys.argv[1:]
+    flag = False
+    if(dicom_dir.endswith(".iso")):
+        # Work with ISO Stuff
+        flag =  True
+        # If user gives ISO then pulling DICOM folder from ISO
+        os.system("hdiutil mount %s" % dicom_dir)
+        in_dir = "/Volumes/DCS/DICOM"
+    else:
+        in_dir = os.path.join(dicom_dir, "DICOM")
+    # Check in_dir
 
     config = raid_snapes_cupboard()
     delete_me = config.get('deletions')
@@ -52,16 +62,13 @@ def main():
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    # dicom_dir = os.listdir(in_dir)
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
-            # os.path.join(path, name)
             print os.path.join(path, name)
             try:
                 with open(os.path.join(path, name)) as working_file:
                     dicom_pointer = dicom.read_file(working_file)
                     print("Working on {}".format(name))
-                #print(dicom_pointer)
                     deletion(dicom_pointer, delete_me)
                     modification(dicom_pointer, modify_me)
                     brew(dicom_pointer, out_dir, name)
@@ -69,5 +76,8 @@ def main():
                 print("{} failed".format(name))
                 print (str(e))
 
+    if flag == True:
+        # Unmount
+        os.system("hdiutil unmount -force /Volumes/DCS")
 if __name__ == '__main__':
     main()
