@@ -14,7 +14,7 @@ def raid_snapes_cupboard():
             try:
                 config = yaml.load(config_file.read())
             except yaml.YAMLError as exc:
-                print(exc)      
+                print(exc)
         return (config)
 
 def deletion(deletion_pointer, delete_me):
@@ -52,18 +52,22 @@ def main():
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    for file in os.listdir(in_dir):
-        try: 
-            with open(os.path.join(in_dir, file)) as working_file:
-                dicom_pointer = dicom.read_file(working_file)
-                print("Working on {}".format(file))
+    # dicom_dir = os.listdir(in_dir)
+    for path, subdirs, files in os.walk(in_dir):
+        for name in files:
+            # os.path.join(path, name)
+            print os.path.join(path, name)
+            try:
+                with open(os.path.join(path, name)) as working_file:
+                    dicom_pointer = dicom.read_file(working_file)
+                    print("Working on {}".format(name))
                 #print(dicom_pointer)
-                deletion(dicom_pointer, delete_me)
-                modification(dicom_pointer, modify_me)
-                brew(dicom_pointer, out_dir, file)
-        except Exception, e:
-            print (file)
-            print (str(e))
+                    deletion(dicom_pointer, delete_me)
+                    modification(dicom_pointer, modify_me)
+                    brew(dicom_pointer, out_dir, name)
+            except Exception, e:
+                print("{} failed".format(name))
+                print (str(e))
 
 if __name__ == '__main__':
     main()
