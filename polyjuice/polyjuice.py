@@ -1,4 +1,4 @@
-
+#! /Library/Frameworks/Python.framework/Versions/2.7/bin/python
 docstr = """
 Polyjuice
 
@@ -11,10 +11,10 @@ Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
 containing dicom files with unneccessary tags removed
 
-$ polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
+$ ./polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
 
 Inorder to ZIP your Cleaned Output Directory
-$ polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder
+$ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder
 """
 import os
 import os.path
@@ -61,10 +61,6 @@ def brew(dataset, out, filename):
 
 def main(args):
     import sys
-    # if len(sys.argv) != 3:
-    #     #check for proper number of args
-    #     print()
-    #     sys.exit()
     if not (args.get(input_dir) and args.get(output_dir)):
         print("Please Enter Input and Output files ")
         sys.exit()
@@ -111,4 +107,3 @@ def main(args):
 if __name__ == '__main__':
     args = docopt(docstr)
     main(args)
-    # main()
