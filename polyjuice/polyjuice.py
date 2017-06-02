@@ -14,7 +14,7 @@ containing dicom files with unneccessary tags removed
 $ ./polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
 
 Inorder to ZIP your Cleaned Output Directory
-$ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder
+$ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder Path_to_Zipped_file
 """
 import os
 import os.path
