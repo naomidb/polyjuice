@@ -20,21 +20,22 @@ def raid_snapes_cupboard():
 def deletion(deletion_pointer, delete_me):
     #use list from config file
     for key in delete_me:
-        ingredient = deletion_pointer.data_element(key).tag
-        del deletion_pointer[ingredient]
-        print ("{} deleted".format(key))
+        if (key in deletion_pointer):
+            ingredient = deletion_pointer.data_element(key).tag
+            del deletion_pointer[ingredient]
+            print ("{} deleted".format(key))
 
 def modification(modification_pointer, modify_me):
     #use dictionary from config file
     for key in modify_me:
-        ingredient = modification_pointer.data_element(key)
-        ingredient.value = modify_me[key]
-        print ("{} changed".format(key))
+        if (key in modification_pointer):
+            ingredient = modification_pointer.data_element(key)
+            ingredient.value = modify_me[key]
+            print ("{} changed".format(key))
 
 def brew(dataset, out, filename):
     output = os.path.join(out, filename)
     dataset.save_as(output)
-    #TODO: Files may not be saving to the right format. Need to test in Windows.
 
 def main():
     import sys
@@ -54,9 +55,9 @@ def main():
     for file in os.listdir(in_dir):
         try: 
             with open(os.path.join(in_dir, file)) as working_file:
-                dicom_pointer = dicom.read_file(working_file, force=True)
+                dicom_pointer = dicom.read_file(working_file)
                 print("Working on {}".format(file))
-                print(dicom_pointer)
+                #print(dicom_pointer)
                 deletion(dicom_pointer, delete_me)
                 modification(dicom_pointer, modify_me)
                 brew(dicom_pointer, out_dir, file)
