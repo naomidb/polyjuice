@@ -1,0 +1,11 @@
+* TODO Make the input directory point to 'DICOM' folder
+
+* TODO Integrate docopt
+
+* TODO Update config file with necessary tags
+
+* Add (optional) functionality to zip output file after cleaning
+
+---------------------------------------------------
+
+# Complete
