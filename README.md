@@ -1,9 +1,11 @@
 polyjuice
 ======
 
-## Anonymize dicom files
-
 Polyjuice will anonymize dicom files. What gets modified or deleted can easily be changed by editing the config file.
+
+## Requirements
+
+Polyjuice works on OSX.
 
 ## Using polyjuice
 
