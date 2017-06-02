@@ -78,6 +78,6 @@ def main():
 
     if flag == True:
         # Unmount
-        os.system("hdiutil unmount -force /Volumes/DCS")
+        os.system("hdiutil unmount  /Volumes/DCS")
 if __name__ == '__main__':
     main()
