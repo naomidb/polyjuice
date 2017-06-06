@@ -29,7 +29,7 @@ INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
 ZIP_DIR = '<zip_output_path>'
 
-def consult_book(args):
+def consult_book(out_dir):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -51,6 +51,7 @@ def brew_potion(dicom_file, in_dir, out_dir, removals, alterations):
             print os.path.join(path, name)
             try:
                 with open(os.path.join(path, name)) as working_file:
+                    print("Working on {}".format(name))
                     dataset = dicom_file.scrub(working_file, removals, alterations)
                     dicom_file.save_output(dataset, out_dir, name)
             except Exception, e:
@@ -59,13 +60,13 @@ def brew_potion(dicom_file, in_dir, out_dir, removals, alterations):
 
 def main(args):
     import sys
-    if not (args.get(input_dir) and args.get(output_dir)):
+    if not (args.get(INPUT_DIR) and args.get(OUTPUT_DIR)):
         print("Please Enter Input and Output files ")
         sys.exit()
     # dicom_dir, out_dir = sys.argv[1:]
     dicom_dir = args[INPUT_DIR]
     out_dir = args[OUTPUT_DIR]
-    consult_book(args)
+    consult_book(out_dir)
 
     dicom_file = DicomImage()
 
@@ -75,7 +76,7 @@ def main(args):
     removals = config.get('deletions')
     alterations = config.get('modifications')
 
-    brew_potion(dicom_file, in_dir, out_dir, removals, alterations)
+    #brew_potion(dicom_file, in_dir, out_dir, removals, alterations)
 
     # Working on converting into ZIP folder
     if(args.get(ZIP_DIR)):
