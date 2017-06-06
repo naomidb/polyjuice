@@ -6,37 +6,37 @@ class DicomCaretaker(object):
     is_iso = False
 
     def start(self, dicom_dir):
+        in_dir = dicom_dir
         if(dicom_dir.endswith(".iso")):
             self.is_iso =  True
             # If user gives ISO then mount and pull DICOM folder from ISO
             # OSX only
-            os.system("hdiutil mount %s" % dicom_dir)
-            in_dir = "/Volumes/DCS/DICOM"
-        else:
-            in_dir = os.path.join(dicom_dir, "DICOM")
+            os.system("mkdir myrtles_bathroom")
+            os.system("hdiutil mount -mountpoint myrtles_bathroom/ISOImage %s" % dicom_dir)
+            in_dir = "myrtles_bathroom/ISOImage"
         return in_dir
 
     def scrub(self, working_file, deletions, modifications, verbose):
         dataset = dicom.read_file(working_file)
-        self.delete_item(dataset, deletions, verbose)
-        self.modify_item(dataset, modifications, verbose)
+        self.delete_item(dataset, deletions, working_file, verbose)
+        self.modify_item(dataset, modifications, working_file, verbose)
         return dataset
 
-    def delete_item(self, dataset, deletions, verbose):
+    def delete_item(self, dataset, deletions, working_file, verbose):
         for key in deletions:
             if (key in dataset):
                 item = dataset.data_element(key).tag
                 del dataset[item]
                 if verbose:
-                    print ("{} deleted".format(key))
+                    print ("{} : {} deleted".format(working_file, key))
 
-    def modify_item(self, dataset, modifications, verbose):
+    def modify_item(self, dataset, modifications, working_file, verbose):
         for key in modifications:
             if (key in dataset):
                 item = dataset.data_element(key)
                 item.value = modifications[key]
                 if verbose:
-                    print ("{} changed".format(key))
+                    print ("{} : {} changed".format(working_file, key))
 
     def save_output(self, dataset, out, filename):
         output = os.path.join(out, filename)
@@ -45,4 +45,5 @@ class DicomCaretaker(object):
     def end(self):
         # OSX only
         if self.is_iso:
-            os.system("hdiutil unmount /Volumes/DCS")
+            os.system("hdiutil unmount myrtles_bathroom/ISOImage")
+            os.system("rmdir myrtles_bathroom")

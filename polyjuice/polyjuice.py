@@ -4,13 +4,14 @@ Polyjuice
 
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-l | --log] (<input_path> <output_path>) [-z <zip_output_path>]
-    polyjuice.py [-l | --log] [-z <zip_output_path>]
+    polyjuice.py [-l | --log] (<input_path> <output_path>) [-c <config_file>] [-z <zip_output_path>]
+    polyjuice.py [-l | --log] [-c <config_file>] [-z <zip_output_path>]
 
 Options:
   -h --help                                     Show this message and exit
   -z --zip                                      Archives the output folder
   -l --log                                      Give progress of program
+  -c --config                                   Give path to config file
 
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
@@ -29,6 +30,7 @@ import yaml
 from docopt import docopt
 from filch import DicomCaretaker
 
+CONFIG_PATH = '<config_file>'
 INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
 ZIP_DIR = '<zip_output_path>'
@@ -38,17 +40,14 @@ def consult_book(out_dir):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-def raid_snapes_cupboard():
-    #find what needs to be modified or deleted from config file
-    #config_path = args.get('config.yaml', None)
-    config_path = 'config.yaml'
-    if config_path:
+def raid_snapes_cupboard(config_path):    
+    try:
         with open(config_path, 'r') as config_file:
-            try:
-                config = yaml.load(config_file.read())
-            except yaml.YAMLError as exc:
-                print(exc)
-        return (config)
+            config = yaml.load(config_file.read())
+    except:
+        print("Check config file")
+        exit()
+    return config
 
 def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
     for path, subdirs, files in os.walk(in_dir):
@@ -65,6 +64,9 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                 print (str(e))
 
 def main(args):
+    if args[CONFIG_PATH]:
+        config_path = args[CONFIG_PATH]
+    else: config_path = 'config.yaml'
     dicom_dir = args[INPUT_DIR]
     out_dir = args[OUTPUT_DIR]
     consult_book(out_dir)
@@ -73,7 +75,7 @@ def main(args):
 
     in_dir = dicom_file.start(dicom_dir)
 
-    config = raid_snapes_cupboard()
+    config = raid_snapes_cupboard(config_path)
     deletions = config.get('deletions')
     modifications = config.get('modifications')
 
@@ -81,7 +83,8 @@ def main(args):
 
     # Working on converting into ZIP folder
     if(args.get(ZIP_DIR)):
-        shutil.make_archive(out_dir, 'zip', out_dir)
+        zip_folder = os.path.join(out_dir, dicom)
+        shutil.make_archive(out_dir, 'zip', zip_folder)
 
     # Checking if the file is ISO    
     dicom_file.end()
