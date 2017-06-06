@@ -28,6 +28,7 @@ import os
 import os.path
 import shutil
 import yaml
+import datetime
 from docopt import docopt
 from filch import DicomCaretaker
 
@@ -51,6 +52,7 @@ def raid_snapes_cupboard(config_path):
     return config
 
 def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
+    count = 0
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
             print os.path.join(path, name)
@@ -59,10 +61,22 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                     if verbose:
                         print("Working on {}".format(name))
                     dataset = dicom_file.scrub(working_file, deletions, modifications, verbose)
+                    # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
+                    # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
+                    date_item = dataset.data_element('StudyDate').tag
+                    patient_item  = dataset.data_element('PatientID').tag
+                    if count == 0:
+                        study_date = dataset[date_item].value
+                        patient_id = dataset[patient_item].value
+                        count = count+1
+                    # Checking if we can append a recent StudyDate to Patient
+                    # print study_date
+                    # print patient_id
                     dicom_file.save_output(dataset, out_dir, name)
             except Exception, e:
                 print("{} failed".format(name))
                 print (str(e))
+    return study_date,patient_id
 
 def main(args):
     if args[CONFIG_PATH]:
@@ -80,12 +94,18 @@ def main(args):
     deletions = config.get('deletions')
     modifications = config.get('modifications')
 
-    brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
-
+    study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
+    # Converting study_date in String to desired date format
+    desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
+    renamed_file = patient_id + "_" + desired_study_date
+    print renamed_file
+    # Change the Name of the Output directory
+    shutil.move(out_dir, renamed_file)
+    # renamed_out_dir = os.rename(out_dir,renamed_file)
     # Working on converting into ZIP folder
     if(args.get(ZIP_DIR)):
         # zip_folder = os.path.join(out_dir, 'DICOM')
-        shutil.make_archive(out_dir, 'zip', out_dir)
+        shutil.make_archive(renamed_file, 'zip',renamed_file)
 
     # Checking if the file is ISO
     dicom_file.end()
