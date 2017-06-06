@@ -27,3 +27,4 @@ Example
  * Create README.md, CHANGELOG.md, AUTHORS and LICENSE
  * Add config file
  * Write polyjuice.py
+ * Add DicomCaretaker class

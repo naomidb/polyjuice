@@ -2,7 +2,7 @@ import dicom
 import os
 import os.path
 
-class DicomImage(object):
+class DicomCaretaker(object):
     is_iso = False
 
     def start(self, dicom_dir):
@@ -16,25 +16,27 @@ class DicomImage(object):
             in_dir = os.path.join(dicom_dir, "DICOM")
         return in_dir
 
-    def scrub(self, working_file, kill_list, changes):
+    def scrub(self, working_file, deletions, modifications, verbose):
         dataset = dicom.read_file(working_file)
-        self.delete_item(dataset, kill_list)
-        self.modify_item(dataset, changes)
+        self.delete_item(dataset, deletions, verbose)
+        self.modify_item(dataset, modifications, verbose)
         return dataset
 
-    def delete_item(self, dataset, kill_list):
-        for key in kill_list:
+    def delete_item(self, dataset, deletions, verbose):
+        for key in deletions:
             if (key in dataset):
                 item = dataset.data_element(key).tag
                 del dataset[item]
-                print ("{} deleted".format(key))
+                if verbose:
+                    print ("{} deleted".format(key))
 
-    def modify_item(self, dataset, changes):
-        for key in changes:
+    def modify_item(self, dataset, modifications, verbose):
+        for key in modifications:
             if (key in dataset):
                 item = dataset.data_element(key)
-                item.value = changes[key]
-                print ("{} changed".format(key))
+                item.value = modifications[key]
+                if verbose:
+                    print ("{} changed".format(key))
 
     def save_output(self, dataset, out, filename):
         output = os.path.join(out, filename)
