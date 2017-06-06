@@ -4,6 +4,7 @@ Polyjuice
 
 Usage:
     polyjuice.py (-h | --help)
+    polyjuice.py [-z] (<input_path> <output_path>) [-z <zip_output_path>]
     polyjuice.py [-l | --log] (<input_path> <output_path>) [-c <config_file>] [-z <zip_output_path>]
     polyjuice.py [-l | --log] [-c <config_file>] [-z <zip_output_path>]
 
@@ -40,7 +41,7 @@ def consult_book(out_dir):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-def raid_snapes_cupboard(config_path):    
+def raid_snapes_cupboard(config_path):
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
@@ -83,10 +84,10 @@ def main(args):
 
     # Working on converting into ZIP folder
     if(args.get(ZIP_DIR)):
-        zip_folder = os.path.join(out_dir, dicom)
-        shutil.make_archive(out_dir, 'zip', zip_folder)
+        # zip_folder = os.path.join(out_dir, 'DICOM')
+        shutil.make_archive(out_dir, 'zip', out_dir)
 
-    # Checking if the file is ISO    
+    # Checking if the file is ISO
     dicom_file.end()
 
 # Integrating Things with Docopt
