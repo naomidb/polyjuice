@@ -70,8 +70,6 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                         patient_id = dataset[patient_item].value
                         count = count+1
                     # Checking if we can append a recent StudyDate to Patient
-                    # print study_date
-                    # print patient_id
                     dicom_file.save_output(dataset, out_dir, name)
             except Exception, e:
                 print("{} failed".format(name))
@@ -101,10 +99,8 @@ def main(args):
     print renamed_file
     # Change the Name of the Output directory
     shutil.move(out_dir, renamed_file)
-    # renamed_out_dir = os.rename(out_dir,renamed_file)
     # Working on converting into ZIP folder
     if(args.get(ZIP_DIR)):
-        # zip_folder = os.path.join(out_dir, 'DICOM')
         shutil.make_archive(renamed_file, 'zip',renamed_file)
 
     # Checking if the file is ISO
