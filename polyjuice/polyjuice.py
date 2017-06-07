@@ -48,6 +48,7 @@ def raid_snapes_cupboard(config_path):
             config = yaml.load(config_file.read())
     except:
         print("Check config file")
+
         exit()
     return config
 
@@ -74,7 +75,19 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
             except Exception, e:
                 print("{} failed".format(name))
                 print (str(e))
-    return study_date,patient_id
+    return study_date, patient_id
+
+def add_hair(study_date, patient_id, out_dir, zip_dir):
+    # Converting study_date in String to desired date format
+    desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
+    renamed_file = patient_id + "_" + desired_study_date
+    print renamed_file
+    # Change the Name of the Output directory
+    shutil.move(out_dir, renamed_file)
+    # Working on converting into ZIP folder
+    if(zip_dir):
+        shutil.make_archive(renamed_file, 'zip', renamed_file)
+
 
 def main(args):
     if args[CONFIG_PATH]:
@@ -82,6 +95,7 @@ def main(args):
     else: config_path = 'config.yaml'
     dicom_dir = args[INPUT_DIR]
     out_dir = args[OUTPUT_DIR]
+    zip_dir = args[ZIP_DIR]
     consult_book(out_dir)
 
     dicom_file = DicomCaretaker()
@@ -93,15 +107,7 @@ def main(args):
     modifications = config.get('modifications')
 
     study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
-    # Converting study_date in String to desired date format
-    desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
-    renamed_file = patient_id + "_" + desired_study_date
-    print renamed_file
-    # Change the Name of the Output directory
-    shutil.move(out_dir, renamed_file)
-    # Working on converting into ZIP folder
-    if(args.get(ZIP_DIR)):
-        shutil.make_archive(renamed_file, 'zip',renamed_file)
+    add_hair(study_date, patient_id, out_dir, zip_dir)
 
     # Checking if the file is ISO
     dicom_file.end()
