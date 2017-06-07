@@ -4,7 +4,8 @@ Polyjuice
 
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-z] (<input_path> <output_path>) [-z <zip_output_path>]
+    polyjuice.py (<input_path> <output_path>) [<zip_output_path>]
+    polyjuice.py [-l] (<input_path> <output_path>)
     polyjuice.py [-l | --log] (<input_path> <output_path>) [-c <config_file>] [-z <zip_output_path>]
     polyjuice.py [-l | --log] [-c <config_file>] [-z <zip_output_path>]
 
@@ -42,13 +43,13 @@ def consult_book(out_dir):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-def raid_snapes_cupboard(config_path):
+def raid_snapes_cupboard(config_path, dicom_file):
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
     except:
         print("Check config file")
-
+        dicom_file.end()
         exit()
     return config
 
@@ -61,7 +62,7 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                 with open(os.path.join(path, name)) as working_file:
                     if verbose:
                         print("Working on {}".format(name))
-                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose)
+                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name)
                     # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
                     # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
                     date_item = dataset.data_element('StudyDate').tag
@@ -104,7 +105,7 @@ def main(args):
 
     in_dir = dicom_file.start(dicom_dir, out_dir)
 
-    config = raid_snapes_cupboard(config_path)
+    config = raid_snapes_cupboard(config_path, dicom_file)
     deletions = config.get('deletions')
     modifications = config.get('modifications')
 
