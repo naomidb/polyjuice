@@ -4,16 +4,12 @@ Polyjuice
 
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py (<input_path> <output_path>) [<zip_output_path>]
-    polyjuice.py [-l] (<input_path> <output_path>)
-    polyjuice.py [-l | --log] (<input_path> <output_path>) [-c <config_file>] [-z <zip_output_path>]
-    polyjuice.py [-l | --log] [-c <config_file>] [-z <zip_output_path>]
+    polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
 
 Options:
-  -h --help                                     Show this message and exit
-  -z --zip                                      Archives the output folder
-  -l --log                                      Give progress of program
-  -c --config                                   Give path to config file
+  -h --help                     Show this message and exit
+  -z --zip                      Archives the output folder
+  -l --log                      Give progress of program
 
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
@@ -38,6 +34,8 @@ INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
 ZIP_DIR = '<zip_output_path>'
 _print_log = '--log'
+_zip_folder = '--zip'
+
 
 def consult_book(out_dir):
     if not os.path.exists(out_dir):
@@ -60,7 +58,7 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
             log_path = os.path.join(out_dir, "log.txt")
             log_file = open(log_path,"a")
             if verbose:
-                print os.path.join(path, name)
+                print(os.path.join(path, name))
             log_file.write(os.path.join(path, name)+"\n")
             try:
                 with open(os.path.join(path, name)) as working_file:
@@ -91,7 +89,7 @@ def add_hair(study_date, patient_id, out_dir, zip_dir):
     # Converting study_date in String to desired date format
     desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
     renamed_file = patient_id + "_" + desired_study_date
-    print renamed_file
+    print(renamed_file)
     # Change the Name of the Output directory
     old_name = os.path.join(out_dir, "DICOM")
     new_name = os.path.join(out_dir, renamed_file)
@@ -107,7 +105,6 @@ def main(args):
     else: config_path = 'config.yaml'
     dicom_dir = args[INPUT_DIR]
     out_dir = args[OUTPUT_DIR]
-    zip_dir = args[ZIP_DIR]
     consult_book(out_dir)
 
     dicom_file = DicomCaretaker()
@@ -117,6 +114,8 @@ def main(args):
     config = raid_snapes_cupboard(config_path, dicom_file)
     deletions = config.get('deletions')
     modifications = config.get('modifications')
+    if _zip_folder:
+        zip_dir = config.get('zip')
 
     study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
     add_hair(study_date, patient_id, out_dir, zip_dir)

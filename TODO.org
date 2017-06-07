@@ -1,19 +1,16 @@
 * TODO Get dicom files from iso
-    - [] Mount iso
-    - [] Make the input directory point to 'DICOM' folder
-    - [x] Think of a better way to unmount then forcing
+    - [x] Mount iso
     - [] Add more general mounting format
-
-* TODO Integrate docopt
 
 * TODO Update config file with necessary tags
 
 * Add list of ISOs and desired output folders to config file
     - [] Have polyjuice get input and output directories from config file
 
-* Add a log
-
 ---------------------------------------------------
 
 # Complete
+
 * Add (optional) functionality to zip output file after cleaning
+
+* Add a log

@@ -1,3 +1,7 @@
+#Location for the zipped files
+zip:
+  - ~/Desktop/Zipped_Dicom_Files
+
 #This key has a value with the list of tags that should be deleted from the dicom file
 deletions:
   - RescaleIntercept
