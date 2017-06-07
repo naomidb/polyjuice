@@ -26,6 +26,8 @@ import os.path
 import shutil
 import yaml
 import datetime
+import time
+import progressbar
 from docopt import docopt
 from filch import DicomCaretaker
 
@@ -117,11 +119,17 @@ def main(args):
     if _zip_folder:
         zip_dir = config.get('zip')
 
+    bar = progressbar.ProgressBar()
+    for i in bar(range(100)):
+        time.sleep(2)
+
     study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
     add_hair(study_date, patient_id, out_dir, zip_dir)
 
     # Checking if the file is ISO
     dicom_file.end()
+
+
 
 # Integrating Things with Docopt
 if __name__ == '__main__':
