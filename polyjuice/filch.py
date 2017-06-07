@@ -17,27 +17,29 @@ class DicomCaretaker(object):
         os.system("mkdir %s/DICOM" % out)
         return in_dir
 
-    def scrub(self, working_file, deletions, modifications, verbose, name):
+    def scrub(self, working_file, deletions, modifications, verbose, name,log_file):
         dataset = dicom.read_file(working_file)
-        self.delete_item(dataset, deletions, working_file, verbose, name)
-        self.modify_item(dataset, modifications, working_file, verbose, name)
+        self.delete_item(dataset, deletions, working_file, verbose, name,log_file)
+        self.modify_item(dataset, modifications, working_file, verbose, name,log_file)
         return dataset
 
-    def delete_item(self, dataset, deletions, working_file, verbose, name):
+    def delete_item(self, dataset, deletions, working_file, verbose, name,log_file):
         for key in deletions:
             if (key in dataset):
                 item = dataset.data_element(key).tag
                 del dataset[item]
                 if verbose:
                     print ("{} : {} deleted".format(name, key))
+                log_file.write("{} : {} deleted".format(name, key)+"\n")
 
-    def modify_item(self, dataset, modifications, working_file, verbose, name):
+    def modify_item(self, dataset, modifications, working_file, verbose, name,log_file):
         for key in modifications:
             if (key in dataset):
                 item = dataset.data_element(key)
                 item.value = modifications[key]
                 if verbose:
                     print ("{} : {} changed".format(name, key))
+                log_file.write("{} : {} changed".format(name, key)+"\n")
 
     def save_output(self, dataset, out, filename):
         output = os.path.join(out, "DICOM", filename)
