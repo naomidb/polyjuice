@@ -83,11 +83,13 @@ def add_hair(study_date, patient_id, out_dir, zip_dir):
     renamed_file = patient_id + "_" + desired_study_date
     print renamed_file
     # Change the Name of the Output directory
-    shutil.move(out_dir, renamed_file)
+    old_name = os.path.join(out_dir, "DICOM")
+    new_name = os.path.join(out_dir, renamed_file)
+    shutil.move(old_name, new_name)
     # Working on converting into ZIP folder
     if(zip_dir):
-        shutil.make_archive(renamed_file, 'zip', renamed_file)
-
+        shutil.make_archive(new_name, 'zip', new_name)
+        os.system("mv {}.zip {}".format(new_name, zip_dir))
 
 def main(args):
     if args[CONFIG_PATH]:
@@ -100,7 +102,7 @@ def main(args):
 
     dicom_file = DicomCaretaker()
 
-    in_dir = dicom_file.start(dicom_dir)
+    in_dir = dicom_file.start(dicom_dir, out_dir)
 
     config = raid_snapes_cupboard(config_path)
     deletions = config.get('deletions')

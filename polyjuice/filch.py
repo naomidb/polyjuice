@@ -5,7 +5,7 @@ import os.path
 class DicomCaretaker(object):
     is_iso = False
 
-    def start(self, dicom_dir):
+    def start(self, dicom_dir, out):
         in_dir = dicom_dir
         if(dicom_dir.endswith(".iso")):
             self.is_iso =  True
@@ -14,6 +14,7 @@ class DicomCaretaker(object):
             os.system("mkdir myrtles_bathroom")
             os.system("hdiutil mount -mountpoint myrtles_bathroom/ISOImage %s" % dicom_dir)
             in_dir = "myrtles_bathroom/ISOImage"
+        os.system("mkdir %s/DICOM" % out)
         return in_dir
 
     def scrub(self, working_file, deletions, modifications, verbose):
@@ -39,7 +40,7 @@ class DicomCaretaker(object):
                     print ("{} : {} changed".format(working_file, key))
 
     def save_output(self, dataset, out, filename):
-        output = os.path.join(out, filename)
+        output = os.path.join(out, "DICOM", filename)
         dataset.save_as(output)
 
     def end(self):
