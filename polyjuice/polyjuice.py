@@ -57,12 +57,17 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
     count = 0
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
-            print os.path.join(path, name)
+            log_path = os.path.join(out_dir, "log.txt")
+            log_file = open(log_path,"a")
+            if verbose:
+                print os.path.join(path, name)
+            log_file.write(os.path.join(path, name)+"\n")
             try:
                 with open(os.path.join(path, name)) as working_file:
                     if verbose:
                         print("Working on {}".format(name))
-                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name)
+                    log_file.write("Working on {}".format(name)+"\n")
+                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name,log_file)
                     # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
                     # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
                     date_item = dataset.data_element('StudyDate').tag
@@ -74,8 +79,12 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                     # Checking if we can append a recent StudyDate to Patient
                     dicom_file.save_output(dataset, out_dir, name)
             except Exception, e:
-                print("{} failed".format(name))
-                print (str(e))
+                if verbose:
+                    print("{} failed".format(name))
+                    print (str(e))
+                log_file.write("{} failed".format(name)+"\n")
+                log_file.write(str(e)+"\n")
+            log_file.close()
     return study_date, patient_id
 
 def add_hair(study_date, patient_id, out_dir, zip_dir):
