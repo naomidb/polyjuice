@@ -6,9 +6,12 @@ class DicomCaretaker(object):
     is_iso = False
 
     def start(self, dicom_dir, out):
+        print("let's sTART")
         in_dir = dicom_dir
+        print(dicom_dir)
         if(dicom_dir.endswith(".iso")):
             self.is_iso =  True
+            # print("Got your iso")
             # If user gives ISO then mount and pull DICOM folder from ISO
             # OSX only
             os.system("mkdir myrtles_bathroom")
@@ -19,6 +22,8 @@ class DicomCaretaker(object):
 
     def scrub(self, working_file, deletions, modifications, verbose, name,log_file):
         dataset = dicom.read_file(working_file)
+        # print("Entered Scrub ")
+        # print(dataset[date_item].value)
         self.delete_item(dataset, deletions, working_file, verbose, name,log_file)
         self.modify_item(dataset, modifications, working_file, verbose, name,log_file)
         return dataset

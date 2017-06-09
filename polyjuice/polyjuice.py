@@ -4,7 +4,7 @@ Polyjuice
 
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
+    polyjuice.py [-lzm]  (<input_path> <output_path>) [<config_file>]
     polyjuice.py [-lzc] [<config_file>]
 
 Options:
@@ -12,7 +12,7 @@ Options:
   -z --zip                      Archives the output folder
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
-
+  -m --multiple                 The input folder with multiple ISO's
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
 containing dicom files with unneccessary tags removed
@@ -40,7 +40,7 @@ ZIP_DIR = '<zip_output_path>'
 _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
-
+_use_multiple= '--multiple'
 
 def go_to_library(config_path):
     try:
@@ -52,7 +52,10 @@ def go_to_library(config_path):
     return config
 
 def ask_hermione(out_dir):
+    print("Lets ask hermione")
+    print("Output DIr "+str(out_dir))
     if not os.path.exists(out_dir):
+        print("Directory doesn't exist lets create one ")
         try:
             os.makedirs(out_dir)
         except Exception as e:
@@ -60,7 +63,7 @@ def ask_hermione(out_dir):
 
 def consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications):
     dicom_file = DicomCaretaker()
-
+    # print("in consult book")
     in_dir = dicom_file.start(dicom_dir, out_dir)
 
     study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
@@ -83,6 +86,7 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                     if verbose:
                         print("Working on {}".format(name))
                     log_file.write("Working on {}".format(name)+"\n")
+                    print("Checking Scrub")
                     dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name,log_file)
                     # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
                     # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
@@ -92,6 +96,7 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                         study_date = dataset[date_item].value
                         patient_id = dataset[patient_item].value
                         count = count+1
+                    print(study_date)
                     # Checking if we can append a recent StudyDate to Patient
                     dicom_file.save_output(dataset, out_dir, name)
             except Exception, e:
@@ -123,6 +128,7 @@ def add_hair(study_date, patient_id, out_dir, zip_dir):
         os.system("mv {}.zip {}".format(new_name, zip_dir))
 
 def main(args):
+
     if args[CONFIG_PATH]:
         config_path = args[CONFIG_PATH]
     else: config_path = 'config.yaml'
@@ -132,6 +138,8 @@ def main(args):
     modifications = config.get('modifications')
     if _zip_folder:
         zip_dir = config.get('zip')
+        print("zip folder " + str(zip_dir))
+
 
     if args[_use_config]:
         #get from config file
@@ -149,6 +157,22 @@ def main(args):
             out_dir = os.path.join(out_root, io_pair['output'])
             ask_hermione(out_dir)
             consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
+
+    elif args[_use_multiple]:
+        # Looping through each ISO in Directory
+        count1 = 0
+        iso_file = args[INPUT_DIR]
+        print("iso file "+ iso_file)
+        for current_iso in os.listdir(iso_file):
+            # print("Current ISO "+ current_iso)
+            count1 = count1 + 1
+            print("Going through ISO "+str(count1))
+            dicom_dir = os.path.join(iso_file,current_iso)
+            # print(" dicom dir "+dicom_dir)
+            if dicom_dir.endswith(".iso"):
+                out_dir = args[OUTPUT_DIR]
+                ask_hermione(out_dir)
+                consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
     else:
         dicom_dir = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]

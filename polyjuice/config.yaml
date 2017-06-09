@@ -1,6 +1,5 @@
 #Location for the zipped files
-zip:
-  - ~/Desktop/Zipped_Dicom_Files
+zip: /Users/amineni95/Desktop/Zipped_Dicom_Files
 
 #This key has a value with the list of tags that should be deleted from the dicom file
 deletions:
@@ -15,8 +14,8 @@ modifications:
 #Optional: Use the dictionaries below to go through multiple ISOs
 
 #This is the filepath for the input and output. Put the actual files in the IO_pairs dictionary.
-in_data_root: /Users/looseymoose/Desktop
-out_data_root: /Users/looseymoose/Desktop
+in_data_root: /Users/amineni95/Desktop
+out_data_root: /Users/amineni95/Desktop
 
 #Write just the file name
 io_pairs:
