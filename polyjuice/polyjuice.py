@@ -28,6 +28,8 @@ import os.path
 import shutil
 import yaml
 import datetime
+import time
+import progressbar
 from docopt import docopt
 from filch import DicomCaretaker
 
@@ -136,6 +138,12 @@ def main(args):
         in_root = config.get('in_data_root')
         out_root = config.get('out_data_root')
         io_pairs = config.get('io_pairs')
+
+        #TODO: Find where to put progress bar
+        '''bar = progressbar.ProgressBar()
+        for i in bar(range(100)):
+            time.sleep(2)'''
+
         for io_pair in io_pairs:
             dicom_dir = os.path.join(in_root, io_pair['input'])
             out_dir = os.path.join(out_root, io_pair['output'])
