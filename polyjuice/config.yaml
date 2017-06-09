@@ -5,11 +5,58 @@ zip: /Users/amineni95/Desktop/Zipped_Dicom_Files
 deletions:
   - RescaleIntercept
   - RescaleSlope
+  - RescaleType
 
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
+  #InstanceCreatorUID: 
+  SOPInstanceUID: ''
+  AccessionNumber: ''
+  InstitutionName: ''
+  #InstitutionAddress: 
+  ReferringPhysicianName: ''
+  #ReferringPhysicianAddress: 
+  #ReferringPhysicianTelephoneNumbers: 
+  StationName: ''
+  StudyDescription: ''
+  SeriesDescription: ''
+  #InstitutionalDepartmentName: 
+  #PhysicianOfRecord: 
+  #PerformingPhysicianName:
+  #NameOfPhysicianReadingStudy: 
+  #OperatorName: 
+  #AdmittingDiadnosesDescription: 
+  #ReferencedSOPInstanceUID: 
+  #DerivationDescription: 
   PatientName: Anonymous
+  #PatientID: 
   PatientBirthDate: "19990909"
+  #PatientBirthTime: 
+  PatientSex: ''
+  #OtherPatientIDs:
+  #OtherPatientNames:
+  PatientAge: ''
+  #PatientSize:
+  PatientWeight: ''
+  #MedicalRecordLocator:
+  EthnicGroup: ''
+  #Occupation:
+  #AdditionalPatientHistory:
+  #PatientComments:
+  #DeviceSerialNumber:
+  ProtocolName: ''
+  StudyInstanceUID: ''
+  SeriesInstanceUID: ''
+  StudyID: ''
+  #FrameOfReferenceUID:
+  #SynchronizationonFrameOfReferenceUID:
+  #ImageComments:
+  #RequestAttributesSequence:
+  #UID:
+  #ContentSequence:
+  #StorageMediaFileSetUID:
+  #ReferencedFrameOfReferenceUID:
+  #RelatedFrameOfReferenceUID:
 
 #Optional: Use the dictionaries below to go through multiple ISOs
 
