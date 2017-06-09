@@ -63,7 +63,6 @@ def ask_hermione(out_dir):
 
 def consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications):
     dicom_file = DicomCaretaker()
-    # print("in consult book")
     in_dir = dicom_file.start(dicom_dir, out_dir)
 
     study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
@@ -87,7 +86,7 @@ def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
                         print("Working on {}".format(name))
                     log_file.write("Working on {}".format(name)+"\n")
                     print("Checking Scrub")
-                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name,log_file)
+                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name, log_file)
                     # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
                     # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
                     date_item = dataset.data_element('StudyDate').tag
@@ -162,13 +161,11 @@ def main(args):
         # Looping through each ISO in Directory
         count1 = 0
         iso_file = args[INPUT_DIR]
-        print("iso file "+ iso_file)
+        print("iso file " + iso_file)
         for current_iso in os.listdir(iso_file):
-            # print("Current ISO "+ current_iso)
             count1 = count1 + 1
-            print("Going through ISO "+str(count1))
-            dicom_dir = os.path.join(iso_file,current_iso)
-            # print(" dicom dir "+dicom_dir)
+            print("Going through ISO " + str(count1))
+            dicom_dir = os.path.join(iso_file, current_iso)
             if dicom_dir.endswith(".iso"):
                 out_dir = args[OUTPUT_DIR]
                 ask_hermione(out_dir)
