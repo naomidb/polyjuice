@@ -5,11 +5,13 @@ Polyjuice
 Usage:
     polyjuice.py (-h | --help)
     polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
+    polyjuice.py [-lzc] [<config_file>]
 
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
   -l --log                      Give progress of program
+  -c --config                   Use config file to get input and output paths
 
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
@@ -35,21 +37,35 @@ OUTPUT_DIR = '<output_path>'
 ZIP_DIR = '<zip_output_path>'
 _print_log = '--log'
 _zip_folder = '--zip'
+_use_config = '--config'
 
 
-def consult_book(out_dir):
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-def raid_snapes_cupboard(config_path, dicom_file):
+def go_to_library(config_path):
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
     except:
         print("Check config file")
-        dicom_file.end()
         exit()
     return config
+
+def ask_hermione(out_dir):
+    if not os.path.exists(out_dir):
+        try:
+            os.makedirs(out_dir)
+        except Exception as e:
+            raise e
+
+def consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications):
+    dicom_file = DicomCaretaker()
+
+    in_dir = dicom_file.start(dicom_dir, out_dir)
+
+    study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
+    add_hair(study_date, patient_id, out_dir, zip_dir)
+
+    # Checking if the file is ISO
+    dicom_file.end()
 
 def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
     count = 0
@@ -94,34 +110,42 @@ def add_hair(study_date, patient_id, out_dir, zip_dir):
     old_name = os.path.join(out_dir, "DICOM")
     new_name = os.path.join(out_dir, renamed_file)
     shutil.move(old_name, new_name)
+
+    log_name = os.path.join(out_dir, "log.txt")
+    new_log_name = os.path.join(out_dir, renamed_file + "_log.txt")
+    shutil.move(log_name, new_log_name)
     # Working on converting into ZIP folder
     if(zip_dir):
         shutil.make_archive(new_name, 'zip', new_name)
+        ask_hermione(zip_dir)
         os.system("mv {}.zip {}".format(new_name, zip_dir))
 
 def main(args):
     if args[CONFIG_PATH]:
         config_path = args[CONFIG_PATH]
     else: config_path = 'config.yaml'
-    dicom_dir = args[INPUT_DIR]
-    out_dir = args[OUTPUT_DIR]
-    consult_book(out_dir)
 
-    dicom_file = DicomCaretaker()
-
-    in_dir = dicom_file.start(dicom_dir, out_dir)
-
-    config = raid_snapes_cupboard(config_path, dicom_file)
+    config = go_to_library(config_path)
     deletions = config.get('deletions')
     modifications = config.get('modifications')
     if _zip_folder:
         zip_dir = config.get('zip')
 
-    study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
-    add_hair(study_date, patient_id, out_dir, zip_dir)
-
-    # Checking if the file is ISO
-    dicom_file.end()
+    if args[_use_config]:
+        #get from config file
+        in_root = config.get('in_data_root')
+        out_root = config.get('out_data_root')
+        io_pairs = config.get('io_pairs')
+        for io_pair in io_pairs:
+            dicom_dir = os.path.join(in_root, io_pair['input'])
+            out_dir = os.path.join(out_root, io_pair['output'])
+            ask_hermione(out_dir)
+            consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
+    else:
+        dicom_dir = args[INPUT_DIR]
+        out_dir = args[OUTPUT_DIR]
+        ask_hermione(out_dir)
+        consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
 
 # Integrating Things with Docopt
 if __name__ == '__main__':

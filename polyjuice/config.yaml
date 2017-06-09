@@ -11,3 +11,16 @@ deletions:
 modifications:
   PatientName: Anonymous
   PatientBirthDate: "19990909"
+
+#Optional: Use the dictionaries below to go through multiple ISOs
+
+#This is the filepath for the input and output. Put the actual files in the IO_pairs dictionary.
+in_data_root: /Users/looseymoose/Desktop
+out_data_root: /Users/looseymoose/Desktop
+
+#Write just the file name
+io_pairs:
+  - input: 110004_6-3-2009.iso
+    output: clean_test
+  - input: 110024-5-2-2013-PET-Amyvid-Florbetapir.iso
+    output: clean_test
