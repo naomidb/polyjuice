@@ -48,7 +48,8 @@ out_data_root: /my/root/output/path
 
 io_pairs:
     - input: with/sub/directory/my_file.iso
-    - output: output_folder```
+    - output: output_folder
+```
 
 References
 ------
