@@ -43,12 +43,12 @@ The next two keys, in_data_root and out_data_root, contain the root for the inpu
 
 Finally, the io_pairs key contains a dictionary with the input and output files. If you use the preceding two keys for the file roots, these **must** not start with a `/` or they will be interpreted as an absolute path and ignore the roots. However, you can use sub-directories in the io_pair dictionary while still using the roots.
 
-`in_data_root: /my/root/input/path
+```in_data_root: /my/root/input/path
 out_data_root: /my/root/output/path
 
 io_pairs:
     - input: with/sub/directory/my_file.iso
-    - output: output_folder`
+    - output: output_folder```
 
 References
 ------
