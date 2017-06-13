@@ -4,10 +4,9 @@
 
 * TODO Update config file with necessary tags
 
-* Add list of ISOs and desired output folders to config file
-    - [] Have polyjuice get input and output directories from config file
-
 * Make logger class or function
+
+* Find way to get around needing to use --multiple option
 
 ---------------------------------------------------
 
@@ -16,3 +15,5 @@
 * Add (optional) functionality to zip output file after cleaning
 
 * Add a log
+
+* Add list of ISOs and desired output folders to config file

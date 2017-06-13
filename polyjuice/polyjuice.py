@@ -27,10 +27,10 @@ import os
 import os.path
 import shutil
 import yaml
-import datetime
 import time
 #import progressbar
 from docopt import docopt
+from lumberjack import Lumberjack
 from filch import DicomCaretaker
 from dicom_image import DicomImage
 
@@ -58,36 +58,37 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
     for current_file in os.listdir(parent_file):
         print("Current File: " + current_file)
         dicom_dir = os.path.join(parent_file, current_file)
-        consult_book(dicom_dir, out_dir, zip_dir, modifications)
+        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
-def consult_book(dicom_dir, out_dir, zip_dir, modifications):
+def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
     editor = DicomCaretaker()
     in_dir = editor.start(dicom_dir, out_dir)
 
-    brew_potion(editor, in_dir, out_dir, modifications, zip_dir)
+    brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
 
     # Checking if the file is ISO
     editor.end()
 
-def brew_potion(editor, in_dir, out_dir, modifications, zip_dir):
+def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
     new_dicom = False
     dicom_folders = []
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
-            #log_path = os.path.join(out_dir, "log.txt")
-            #log_file = open(log_path, "a")
-            #if verbose:
-                #print(os.path.join(path, name))
-            #log_file.write(os.path.join(path, name)+"\n")
+            log_path = os.path.join(out_dir, 'log.txt')
+            if verbose:
+                log = Lumberjack(log_path, True)
+            else:
+                log = Lumberjack(log_path)
+            path_message = os.path.join(path, name)
+            log(path_message)
             try:
                 with open(os.path.join(path, name)) as working_file:
-                    #if verbose:
-                        #print("Working on {}".format(name))
-                    #log_file.write("Working on {}".format(name)+"\n")
+                    working_message = "Working on {}".format(name)
+                    log(working_message)
 
                     dataset = DicomImage(working_file)
 
@@ -101,26 +102,31 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir):
                         dicom_folders.append(identified_folder)
 
                     editor.save_output(dataset, identified_folder, name)
-                    #if verbose:
-                        #print("Saved to {}".format(identified_folder))
-                    #log_file.write("Saved to {}".format(identified_folder)+"\n")
+                    saving_message = "Saved to {}".format(identified_folder)
+                    log(saving_message)
+
+                    new_dicom = True
 
             except Exception, e:
                 print("{} failed".format(name))
                 print (str(e))
-                #log_file.write("{} failed".format(name)+"\n")
-                #log_file.write(str(e)+"\n")
-            #log_file.close()
+                failure_message = "{} failed".format(name) + "\n" + str(e)
+                log(failure_message)
 
-    if zip_dir:
-        add_hair(dicom_folders, zip_dir)
+    if zip_dir and new_dicom:
+        add_hair(dicom_folders, zip_dir, log)
         
 
-def add_hair(dicom_folders, zip_dir):
+def add_hair(dicom_folders, zip_dir, log):
     for folder in dicom_folders:
         shutil.make_archive(folder, 'zip', folder)
+        zipped_message = "{} archived".format(folder)
+        log(zipped_message)
+
         ask_hermione(zip_dir)
         os.system("mv {}.zip {}".format(folder, zip_dir))
+        move_zip_message = "{} moved to {}".format(folder, zip_dir)
+        log(move_zip_message)
 
 def main(args):
     if args[CONFIG_PATH]:
@@ -136,6 +142,8 @@ def main(args):
         print("zip folder " + str(zip_dir))
     else:
         zip_dir = None
+
+    verbose = args[_print_log]
     
     if args[_use_config]:
         #get from config file
@@ -149,23 +157,23 @@ def main(args):
             if args[_has_multiple]:
                 #Loop through ISOs and subdirectories
                 parent_file = os.path.join(in_root, io_pair['input'])
-                browse_restricted_section(parent_file, out_dir, zip_dir, modifications)
+                browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
             else:
                 dicom_dir = os.path.join(in_root, io_pair['input'])
-                consult_book(dicom_dir, out_dir, zip_dir, modifications)
+                consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
     elif args[_has_multiple]:
         #Loop through ISOs and subdirectories
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications)
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
 
     else:
         dicom_dir = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
-        consult_book(dicom_dir, out_dir, zip_dir, modifications)
+        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
         #TODO: Find where to put progress bar
         '''bar = progressbar.ProgressBar()
