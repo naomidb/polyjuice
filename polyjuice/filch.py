@@ -1,11 +1,11 @@
-import dicom
 import os
 import os.path
 import platform
+import datetime
 
 class DicomCaretaker(object):
     is_iso = False
-
+    
     def start(self, dicom_dir, out):
         in_dir = dicom_dir
         if(dicom_dir.endswith(".iso")):
@@ -19,36 +19,28 @@ class DicomCaretaker(object):
                 os.system("sudo mount -o loop %s myrtles_bathroom/ISOImage" % dicom_dir)
 
             in_dir = "myrtles_bathroom/ISOImage"
-        os.system("mkdir %s/DICOM" % out)
         return in_dir
 
-    def scrub(self, working_file, deletions, modifications, verbose, name,log_file):
-        dataset = dicom.read_file(working_file)
-        self.delete_item(dataset, deletions, working_file, verbose, name,log_file)
-        self.modify_item(dataset, modifications, working_file, verbose, name,log_file)
-        return dataset
-
-    def delete_item(self, dataset, deletions, working_file, verbose, name,log_file):
-        for key in deletions:
-            if (key in dataset):
-                item = dataset.data_element(key).tag
-                del dataset[item]
-                if verbose:
-                    print ("{} : {} deleted".format(name, key))
-                log_file.write("{} : {} deleted".format(name, key)+"\n")
-
-    def modify_item(self, dataset, modifications, working_file, verbose, name,log_file):
+    def scrub(self, dataset, modifications):
         for key in modifications:
-            if (key in dataset):
-                item = dataset.data_element(key)
-                item.value = modifications[key]
-                if verbose:
-                    print ("{} : {} changed".format(name, key))
-                log_file.write("{} : {} changed".format(name, key)+"\n")
+            if modifications[key] == None:
+                dataset.delete_item(key)
+            else:
+                dataset.modify_item(key, modifications[key])
 
-    def save_output(self, dataset, out, filename):
-        output = os.path.join(out, "DICOM", filename)
-        dataset.save_as(output)
+    def get_folder_name(self, dataset):
+        study_date = dataset.get_value('StudyDate')
+        patient_id = dataset.get_value('PatientID')
+
+        #Change study_date to desired format
+        desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
+        #Rename according to NACC conventions
+        folder_name = patient_id + "_" + desired_study_date
+        return folder_name
+
+    def save_output(self, dataset, identified_folder, filename):
+        output = os.path.join(identified_folder, filename)
+        dataset.save_image(output)
 
     def end(self):
         if self.is_iso:

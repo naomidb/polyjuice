@@ -1,5 +1,5 @@
 #Location for the zipped files
-zip: /Users/amineni95/Desktop/Zipped_Dicom_Files
+zip: /Users/looseymoose/Desktop/testing/polyjuice_testing/zipped_folders
 
 #This key has a value with the list of tags that should be deleted from the dicom file
 deletions:
@@ -57,6 +57,9 @@ modifications:
   #StorageMediaFileSetUID:
   #ReferencedFrameOfReferenceUID:
   #RelatedFrameOfReferenceUID:
+  RescaleIntercept: Null
+  RescaleSlope: Null
+  RescaleType: Null
 
 #Optional: Use the dictionaries below to go through multiple ISOs
 
@@ -64,7 +67,6 @@ modifications:
 in_data_root: /Users/amineni95/Desktop
 out_data_root: /Users/amineni95/Desktop
 
-#Write just the file name
 io_pairs:
   - input: 110004_6-3-2009.iso
     output: clean_test
