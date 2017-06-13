@@ -25,7 +25,7 @@ You can also use the `-z` or `--zip` flag to archive the output folders. The des
 
 Note that neither the output directory nor the archive directory need exist before running the program. If they do not exist, Polyjuice will make them for you.
 
-If a file does not have the 'DICM' marker, it will fail. If a file you need to read is failing, you can add `force=True` on `read_file` (in filch.py).
+If a file does not have the 'DICM' marker, it will fail. If a file you need to read is failing, you can add `force=True` on `read_file` (in filch).
 
 `dataset = dicom.read_file(working_file, force=True)`
 
@@ -35,9 +35,9 @@ The config file contains several ways to help you customize your project.
 
 The first key, zip, allows you to choose the location your archived files will be sent to.
 
-The next key contains tags that will be deleted from the DICOM files. The following, modifications, contains tags that will be modified. The dictionary inside modifications has the name in the key position and the desired value for the tag in the value position.
+The next key, modifications, has all the tags that will undergo some change. The tag to be modified should have its name as the key and the desired change should be the value. To delete a tag, the value should be `Null`.
 
-The modifications listed in the config file were selected in accordance with the [DICOM Standards Committee](ftp://medical.nema.org/medical/dicom/final/sup55_ft.pdf). You can add or remove, comment and uncomment as desired for your project.
+The modifications listed in the config file were selected in accordance with the [DICOM Standards Committee](ftp://medical.nema.org/medical/dicom/final/sup55_ft.pdf). You can add and remove, comment and uncomment as desired for your project.
 
 The next two keys, in_data_root and out_data_root, contain the root for the input and output folders.
 
