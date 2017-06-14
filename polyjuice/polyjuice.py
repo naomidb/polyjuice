@@ -48,6 +48,7 @@ def go_to_library(config_path):
             config = yaml.load(config_file.read())
     except:
         print("Error: Check config file")
+
         exit()
     return config
 
