@@ -1,7 +1,7 @@
 import dicom
 import os
 import os.path
-
+import platform
 class DicomCaretaker(object):
     is_iso = False
 
@@ -11,11 +11,15 @@ class DicomCaretaker(object):
         print(dicom_dir)
         if(dicom_dir.endswith(".iso")):
             self.is_iso =  True
-            # print("Got your iso")
             # If user gives ISO then mount and pull DICOM folder from ISO
-            # OSX only
+            # OSX and linux Only
             os.system("mkdir myrtles_bathroom")
-            os.system("hdiutil mount -mountpoint myrtles_bathroom/ISOImage %s" % dicom_dir)
+            # Checking if the current operating System is OSX
+            if platform.system() == 'Darwin':
+                os.system("hdiutil mount -mountpoint myrtles_bathroom/ISOImage %s" % dicom_dir)
+            elif platform.system() == 'Linux':
+                os.system("sudo mount -o loop %s myrtles_bathroom/ISOImage " % dicom_dir)
+
             in_dir = "myrtles_bathroom/ISOImage"
         os.system("mkdir %s/DICOM" % out)
         return in_dir
@@ -53,5 +57,8 @@ class DicomCaretaker(object):
     def end(self):
         # OSX only
         if self.is_iso:
-            os.system("hdiutil unmount myrtles_bathroom/ISOImage")
+            if platform.system() == 'Darwin':
+                os.system("hdiutil unmount myrtles_bathroom/ISOImage")
+            elif platform.system() == 'Linux':
+                os.system("sudo unmount myrtles_bathroom/ISOImage")
             os.system("rmdir myrtles_bathroom")
