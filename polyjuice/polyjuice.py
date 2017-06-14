@@ -66,6 +66,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
 
 def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
     editor = DicomCaretaker()
+    editor.get_progress()
     in_dir = editor.start(dicom_dir, out_dir)
 
     brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
@@ -115,7 +116,7 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
 
     if zip_dir and new_dicom:
         add_hair(dicom_folders, zip_dir, log)
-        
+
 
 def add_hair(dicom_folders, zip_dir, log):
     for folder in dicom_folders:
@@ -144,7 +145,7 @@ def main(args):
         zip_dir = None
 
     verbose = args[_print_log]
-    
+
     if args[_use_config]:
         #get from config file
         in_root = config.get('in_data_root')
@@ -175,10 +176,6 @@ def main(args):
         ask_hermione(out_dir)
         consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
-        #TODO: Find where to put progress bar
-        '''bar = progressbar.ProgressBar()
-        for i in bar(range(100)):
-            time.sleep(2)'''
 
 # Integrating Things with Docopt
 if __name__ == '__main__':

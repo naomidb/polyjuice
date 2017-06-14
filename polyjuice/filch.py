@@ -2,6 +2,8 @@ import os
 import os.path
 import platform
 import datetime
+import time
+import progressbar
 class DicomCaretaker(object):
     is_iso = False
 
@@ -42,6 +44,12 @@ class DicomCaretaker(object):
     def save_output(self, dataset, identified_folder, filename):
         output = os.path.join(identified_folder, filename)
         dataset.save_image(output)
+
+    def get_progress(self):
+        #TODO: Find where to put progress bar
+        bar = progressbar.ProgressBar()
+        for i in bar(range(100)):
+            time.sleep(2)
 
     def end(self):
         if self.is_iso:
