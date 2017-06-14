@@ -5,33 +5,29 @@ import datetime
 
 class DicomCaretaker(object):
     is_iso = False
+    mount_location = "myrtles_bathroom"
     
-    def start(self, dicom_dir, out):
-        in_dir = dicom_dir
-        if(dicom_dir.endswith(".iso")):
-            self.is_iso =  True
-            # If user gives ISO then mount and pull DICOM folder from ISO
-            os.system("mkdir myrtles_bathroom")
+    def mount_iso(self, iso_path, out):
+        self.is_iso =  True
+        mount_point = self.mount_location + "/ISOImage"
+        # If user gives ISO then mount and pull DICOM folder from ISO
+        os.system("mkdir %s" % self.mount_location)
 
-            if platform.system() == 'Darwin':
-                os.system("hdiutil mount -mountpoint myrtles_bathroom/ISOImage %s" % dicom_dir)
-            elif platform.system() == 'Linux':
-                os.system("sudo mount -o loop %s myrtles_bathroom/ISOImage" % dicom_dir)
+        if platform.system() == 'Darwin':
+            os.system("hdiutil mount -mountpoint {} {}".format(mount_point, iso_path))
+        elif platform.system() == 'Linux':
+            os.system("sudo mount -o loop {} {}".format(iso_path, mount_point))
 
-            in_dir = "myrtles_bathroom/ISOImage"
-        return in_dir
+        return mount_point
 
-    def scrub(self, dataset, modifications, log):
-        for key in modifications:
-            log("A log test")
-            if modifications[key] == None:
-                dataset.delete_item(key, log)
-            else:
-                dataset.modify_item(key, modifications[key], log)
+    def scrub(self, image, modifications, log):
+        for key, value in modifications.items():
+            delete = True if value == None else False
+            image.modify_item(key, value, delete, log)
 
-    def get_folder_name(self, dataset):
-        study_date = dataset.get_value('StudyDate')
-        patient_id = dataset.get_value('PatientID')
+    def get_folder_name(self, image):
+        study_date = image.get_study_date()
+        patient_id = image.get_patient_id()
 
         #Change study_date to desired format
         desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
@@ -39,14 +35,15 @@ class DicomCaretaker(object):
         folder_name = patient_id + "_" + desired_study_date
         return folder_name
 
-    def save_output(self, dataset, identified_folder, filename):
+    def save_output(self, image, identified_folder, filename):
         output = os.path.join(identified_folder, filename)
-        dataset.save_image(output)
+        image.save_image(output)
 
     def end(self):
+        mount_location = self.mount_location
         if self.is_iso:
             if platform.system() == 'Darwin':
-                os.system("hdiutil unmount myrtles_bathroom/ISOImage")
+                os.system("hdiutil unmount %s/ISOImage" % mount_location)
             elif platform.system() == 'Linux':
-                os.system("sudo unmount myrtles_bathroom/ISOImage")
-            os.system("rmdir myrtles_bathroom")
+                os.system("sudo unmount %s/ISOImage" % mount_location)
+            os.system("rmdir %s" % mount_location)

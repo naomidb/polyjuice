@@ -59,14 +59,16 @@ def ask_hermione(out_dir):
             raise e
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
+    #find files and return list
     for current_file in os.listdir(parent_file):
         print("Current File: " + current_file)
         dicom_dir = os.path.join(parent_file, current_file)
         consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
+        #return a list
 
 def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
     editor = DicomCaretaker()
-    in_dir = editor.start(dicom_dir, out_dir)
+    in_dir = editor.mount_iso(dicom_dir, out_dir)
 
     brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
 
@@ -79,10 +81,7 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
             log_path = os.path.join(out_dir, 'log.txt')
-            if verbose:
-                log = Lumberjack(log_path, True)
-            else:
-                log = Lumberjack(log_path)
+            log = Lumberjack(log_path, verbose)
             path_message = os.path.join(path, name)
             log(path_message)
             try:
@@ -90,18 +89,18 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
                     working_message = "Working on {}".format(name)
                     log(working_message)
 
-                    dataset = DicomImage(working_file)
+                    image = DicomImage(working_file)
 
-                    editor.scrub(dataset, modifications, log)
+                    editor.scrub(image, modifications, log)
 
-                    folder_name = editor.get_folder_name(dataset)
+                    folder_name = editor.get_folder_name(image)
                     identified_folder = os.path.join(out_dir, folder_name)
 
                     if not os.path.exists(identified_folder):
                         ask_hermione(identified_folder)
                         dicom_folders.append(identified_folder)
 
-                    editor.save_output(dataset, identified_folder, name)
+                    editor.save_output(image, identified_folder, name)
                     saving_message = "Saved to {}".format(identified_folder)
                     log(saving_message)
 
@@ -129,12 +128,10 @@ def add_hair(dicom_folders, zip_dir, log):
         log(move_zip_message)
 
 def main(args):
-    if args[CONFIG_PATH]:
-        config_path = args[CONFIG_PATH]
-    else:
-        config_path = 'config.yaml'
+    if not args[CONFIG_PATH]:
+        args[CONFIG_PATH] = 'config.yaml'
 
-    config = go_to_library(config_path)
+    config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
 
     if args[_zip_folder]:
