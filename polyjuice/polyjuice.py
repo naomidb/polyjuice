@@ -5,14 +5,14 @@ Polyjuice
 Usage:
     polyjuice.py (-h | --help)
     polyjuice.py [-lzm]  (<input_path> <output_path>) [<config_file>]
-    polyjuice.py [-lzc] [<config_file>]
+    polyjuice.py [-lzcm] [<config_file>]
 
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
-  -m --multiple                 The input folder with multiple ISO's
+  -m --multiple                 Use input folder with multiple ISOs or directories that should have unique output folders
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
 containing dicom files with unneccessary tags removed
@@ -27,154 +27,158 @@ import os
 import os.path
 import shutil
 import yaml
-import datetime
 import time
-import progressbar
+#import progressbar
 from docopt import docopt
+from lumberjack import Lumberjack
 from filch import DicomCaretaker
+from dicom_image import DicomImage
 
 CONFIG_PATH = '<config_file>'
 INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
-ZIP_DIR = '<zip_output_path>'
 _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
-_use_multiple= '--multiple'
+_has_multiple = '--multiple'
 
 def go_to_library(config_path):
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
     except:
-        print("Check config file")
+        print("Error: Check config file")
         exit()
     return config
 
 def ask_hermione(out_dir):
-    print("Lets ask hermione")
-    print("Output DIr "+str(out_dir))
     if not os.path.exists(out_dir):
-        print("Directory doesn't exist lets create one ")
         try:
             os.makedirs(out_dir)
         except Exception as e:
             raise e
 
-def consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications):
-    dicom_file = DicomCaretaker()
-    in_dir = dicom_file.start(dicom_dir, out_dir)
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
+    for current_file in os.listdir(parent_file):
+        print("Current File: " + current_file)
+        dicom_dir = os.path.join(parent_file, current_file)
+        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
-    study_date,patient_id = brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, args[_print_log])
-    add_hair(study_date, patient_id, out_dir, zip_dir)
+def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
+    editor = DicomCaretaker()
+    in_dir = editor.start(dicom_dir, out_dir)
+
+    brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
 
     # Checking if the file is ISO
-    dicom_file.end()
+    editor.end()
 
-def brew_potion(dicom_file, in_dir, out_dir, deletions, modifications, verbose):
-    count = 0
+def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
+    new_dicom = False
+    dicom_folders = []
     for path, subdirs, files in os.walk(in_dir):
         for name in files:
-            log_path = os.path.join(out_dir, "log.txt")
-            log_file = open(log_path,"a")
+            log_path = os.path.join(out_dir, 'log.txt')
             if verbose:
-                print(os.path.join(path, name))
-            log_file.write(os.path.join(path, name)+"\n")
+                log = Lumberjack(log_path, True)
+            else:
+                log = Lumberjack(log_path)
+            path_message = os.path.join(path, name)
+            log(path_message)
             try:
                 with open(os.path.join(path, name)) as working_file:
-                    if verbose:
-                        print("Working on {}".format(name))
-                    log_file.write("Working on {}".format(name)+"\n")
-                    print("Checking Scrub")
-                    dataset = dicom_file.scrub(working_file, deletions, modifications, verbose, name, log_file)
-                    # Obtaining the Date when MRI Scan has been performed and Use it for Renaming
-                    # NACC Convention expects the Output folder Name to be in PatientID_StudyDate format
-                    date_item = dataset.data_element('StudyDate').tag
-                    patient_item  = dataset.data_element('PatientID').tag
-                    if count == 0:
-                        study_date = dataset[date_item].value
-                        patient_id = dataset[patient_item].value
-                        count = count+1
-                    print(study_date)
-                    # Checking if we can append a recent StudyDate to Patient
-                    dicom_file.save_output(dataset, out_dir, name)
+                    working_message = "Working on {}".format(name)
+                    log(working_message)
+
+                    dataset = DicomImage(working_file)
+
+                    editor.scrub(dataset, modifications, log)
+
+                    folder_name = editor.get_folder_name(dataset)
+                    identified_folder = os.path.join(out_dir, folder_name)
+
+                    if not os.path.exists(identified_folder):
+                        ask_hermione(identified_folder)
+                        dicom_folders.append(identified_folder)
+
+                    editor.save_output(dataset, identified_folder, name)
+                    saving_message = "Saved to {}".format(identified_folder)
+                    log(saving_message)
+
+                    new_dicom = True
+
             except Exception, e:
-                if verbose:
-                    print("{} failed".format(name))
-                    print (str(e))
-                log_file.write("{} failed".format(name)+"\n")
-                log_file.write(str(e)+"\n")
-            log_file.close()
-    return study_date, patient_id
+                print("{} failed".format(name))
+                print (str(e))
+                failure_message = "{} failed".format(name) + "\n" + str(e)
+                log(failure_message)
 
-def add_hair(study_date, patient_id, out_dir, zip_dir):
-    # Converting study_date in String to desired date format
-    desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
-    renamed_file = patient_id + "_" + desired_study_date
-    print(renamed_file)
-    # Change the Name of the Output directory
-    old_name = os.path.join(out_dir, "DICOM")
-    new_name = os.path.join(out_dir, renamed_file)
-    shutil.move(old_name, new_name)
+    if zip_dir and new_dicom:
+        add_hair(dicom_folders, zip_dir, log)
+        
 
-    log_name = os.path.join(out_dir, "log.txt")
-    new_log_name = os.path.join(out_dir, renamed_file + "_log.txt")
-    shutil.move(log_name, new_log_name)
-    # Working on converting into ZIP folder
-    if(zip_dir):
-        shutil.make_archive(new_name, 'zip', new_name)
+def add_hair(dicom_folders, zip_dir, log):
+    for folder in dicom_folders:
+        shutil.make_archive(folder, 'zip', folder)
+        zipped_message = "{} archived".format(folder)
+        log(zipped_message)
+
         ask_hermione(zip_dir)
-        os.system("mv {}.zip {}".format(new_name, zip_dir))
+        os.system("mv {}.zip {}".format(folder, zip_dir))
+        move_zip_message = "{} moved to {}".format(folder, zip_dir)
+        log(move_zip_message)
 
 def main(args):
-
     if args[CONFIG_PATH]:
         config_path = args[CONFIG_PATH]
-    else: config_path = 'config.yaml'
+    else:
+        config_path = 'config.yaml'
 
     config = go_to_library(config_path)
-    deletions = config.get('deletions')
     modifications = config.get('modifications')
-    if _zip_folder:
+
+    if args[_zip_folder]:
         zip_dir = config.get('zip')
         print("zip folder " + str(zip_dir))
+    else:
+        zip_dir = None
 
-
+    verbose = args[_print_log]
+    
     if args[_use_config]:
         #get from config file
         in_root = config.get('in_data_root')
         out_root = config.get('out_data_root')
         io_pairs = config.get('io_pairs')
 
-        #TODO: Find where to put progress bar
-        '''bar = progressbar.ProgressBar()
-        for i in bar(range(100)):
-            time.sleep(2)'''
-
         for io_pair in io_pairs:
-            dicom_dir = os.path.join(in_root, io_pair['input'])
             out_dir = os.path.join(out_root, io_pair['output'])
             ask_hermione(out_dir)
-            consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
+            if args[_has_multiple]:
+                #Loop through ISOs and subdirectories
+                parent_file = os.path.join(in_root, io_pair['input'])
+                browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
+            else:
+                dicom_dir = os.path.join(in_root, io_pair['input'])
+                consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
-    elif args[_use_multiple]:
-        # Looping through each ISO in Directory
-        count1 = 0
-        iso_file = args[INPUT_DIR]
-        print("iso file " + iso_file)
-        for current_iso in os.listdir(iso_file):
-            count1 = count1 + 1
-            print("Going through ISO " + str(count1))
-            dicom_dir = os.path.join(iso_file, current_iso)
-            if dicom_dir.endswith(".iso"):
-                out_dir = args[OUTPUT_DIR]
-                ask_hermione(out_dir)
-                consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
+    elif args[_has_multiple]:
+        #Loop through ISOs and subdirectories
+        parent_file = args[INPUT_DIR]
+        out_dir = args[OUTPUT_DIR]
+        ask_hermione(out_dir)
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
+
     else:
         dicom_dir = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
-        consult_book(dicom_dir, out_dir, zip_dir, deletions, modifications)
+        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
+
+        #TODO: Find where to put progress bar
+        '''bar = progressbar.ProgressBar()
+        for i in bar(range(100)):
+            time.sleep(2)'''
 
 # Integrating Things with Docopt
 if __name__ == '__main__':
