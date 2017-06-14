@@ -92,7 +92,7 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
 
                     dataset = DicomImage(working_file)
 
-                    editor.scrub(dataset, modifications)
+                    editor.scrub(dataset, modifications, log)
 
                     folder_name = editor.get_folder_name(dataset)
                     identified_folder = os.path.join(out_dir, folder_name)

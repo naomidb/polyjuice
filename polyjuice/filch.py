@@ -21,12 +21,13 @@ class DicomCaretaker(object):
             in_dir = "myrtles_bathroom/ISOImage"
         return in_dir
 
-    def scrub(self, dataset, modifications):
+    def scrub(self, dataset, modifications, log):
         for key in modifications:
+            log("A log test")
             if modifications[key] == None:
-                dataset.delete_item(key)
+                dataset.delete_item(key, log)
             else:
-                dataset.modify_item(key, modifications[key])
+                dataset.modify_item(key, modifications[key], log)
 
     def get_folder_name(self, dataset):
         study_date = dataset.get_value('StudyDate')
