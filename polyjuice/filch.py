@@ -25,7 +25,6 @@ class DicomCaretaker(object):
 
     def scrub(self, dataset, modifications, log):
         for key in modifications:
-            log("A log test")
             if modifications[key] == None:
                 dataset.delete_item(key, log)
             else:
@@ -44,12 +43,6 @@ class DicomCaretaker(object):
     def save_output(self, dataset, identified_folder, filename):
         output = os.path.join(identified_folder, filename)
         dataset.save_image(output)
-
-    def get_progress(self):
-        #TODO: Find where to put progress bar
-        bar = progressbar.ProgressBar()
-        for i in bar(range(100)):
-            time.sleep(2)
 
     def end(self):
         if self.is_iso:

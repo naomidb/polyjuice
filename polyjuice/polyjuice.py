@@ -66,7 +66,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
 
 def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
     editor = DicomCaretaker()
-    editor.get_progress()
+    # editor.get_progress()
     in_dir = editor.start(dicom_dir, out_dir)
 
     brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
