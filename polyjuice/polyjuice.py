@@ -83,8 +83,6 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     new_parent_dir = editor.mount_iso(working_file, out_dir)
                     browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
                     editor.end()
-                    # new_dicom  = brew_potion(editor, working_file, out_dir, modifications, log,name)
-
                 else:
                     # Do Normal Cleaning Stuff
                     brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
@@ -94,16 +92,6 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                 print (str(e))
                 failure_message = "{} failed".format(name) + "\n" + str(e)
                 log(failure_message)
-
-
-# def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
-#     editor = DicomCaretaker()
-#     in_dir = editor.mount_iso(dicom_dir, out_dir)
-#
-#     brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
-#
-#     # Checking if the file is ISO
-#     editor.end()
 
 def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
     try:
@@ -129,7 +117,6 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
 
     except Exception, e:
         print("{} failed".format(name))
-        print (str(e))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
 
@@ -150,18 +137,15 @@ def main(args):
 
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
-    reset_IDS = config.get('rename_dict')
-    id_matches = config.get('new_patient_ids')
-    # id_pairs = {}
-    # Pulling Stuff from CSV file
-    with open(reset_IDS, mode='r') as in_oldIDfile:
-        reader = csv.reader(in_oldIDfile)
-        id_pairs = {rows[0]:rows[1] for rows in reader}
 
-    # for id_match in id_matches:
-    #     old_id = id_match['old']
-    #     new_id = id_match['new']
-    #     id_pairs[old_id] = new_id
+    reset_IDS = config.get('new_IDs')
+    try:
+        id_matches = config.get('new_patient_ids')
+        with open(reset_IDS, mode='r') as in_oldIDfile:
+            reader = csv.reader(in_oldIDfile)
+            id_pairs = {rows[0]:rows[1] for rows in reader}
+    except Exception, e:
+        print("Check CSV. \n" + str(e))
 
     if args[_zip_folder]:
         zip_dir = config.get('zip')
@@ -196,17 +180,6 @@ def main(args):
 
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)
-
-    # else:
-    #     dicom_dir = args[INPUT_DIR]
-    #     out_dir = args[OUTPUT_DIR]
-    #     ask_hermione(out_dir)
-    #     consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
-
-        #TODO: Find where to put progress bar
-        '''bar = progressbar.ProgressBar()
-        for i in bar(range(100)):
-            time.sleep(2)'''
 
 # Integrating Things with Docopt
 if __name__ == '__main__':

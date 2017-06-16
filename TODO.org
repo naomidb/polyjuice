@@ -1,6 +1,6 @@
-* Find way to get around needing to use --multiple option
-
 * Integrate progress bar
+
+* Have polyjuice read Ignore list
 
 ---------------------------------------------------
 
@@ -17,3 +17,5 @@
 * TODO Update config file with necessary tags
 
 * Make logger class or function
+
+* Find way to get around needing to use --multiple option

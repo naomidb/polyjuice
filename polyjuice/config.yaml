@@ -1,6 +1,7 @@
 #Location for the zipped files
 zip: /Users/looseymoose/Desktop/testing/polyjuice_testing/zipped_folders
-rename_dict: /Users/amineni95/Desktop/Projects/polyjuiceTesting/polytest.csv
+new_IDs: /Users/looseymoose/code/naomidb.github.com/polyjuice/polyjuice/polytest.csv
+
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
   #InstanceCreatorUID:
@@ -54,12 +55,6 @@ modifications:
   RescaleIntercept: Null
   RescaleSlope: Null
   RescaleType: Null
-
-new_patient_ids:
-  - old: '110004'
-    new: '9999999'
-  - old: wklfdsdfkm
-    new: dfsljf
 
 #Optional: Use the dictionaries below to go through multiple ISOs
 

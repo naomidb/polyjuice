@@ -35,6 +35,8 @@ The config file contains several ways to help you customize your project.
 
 The first key, zip, allows you to choose the location your archived files will be sent to.
 
+The second key, new_IDs, allows you to provide a link to a csv file to update the patient Ids. The csv file should have the old IDs in the first column and the new IDs in the second column.
+
 The next key, modifications, has all the tags that will undergo some change. The tag to be modified should have its name as the key and the desired change should be the value. To delete a tag, the value should be `Null`.
 
 The modifications listed in the config file were selected in accordance with the [DICOM Standards Committee](ftp://medical.nema.org/medical/dicom/final/sup55_ft.pdf). You can add and remove, comment and uncomment as desired for your project.
