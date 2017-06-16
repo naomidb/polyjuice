@@ -3,7 +3,7 @@ import os.path
 import platform
 import datetime
 import time
-import progressbar
+
 class DicomCaretaker(object):
     is_iso = False
     mount_location = "myrtles_bathroom"

@@ -18,6 +18,7 @@ $ ./polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
 Inorder to ZIP your Cleaned Output Directory
 $ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder Path_to_Zipped_file
 """
+
 import os
 import os.path
 import shutil
@@ -37,6 +38,7 @@ _zip_folder = '--zip'
 _use_config = '--config'
 _has_multiple = '--multiple'
 dicom_folders = []
+
 def go_to_library(config_path):
     try:
         with open(config_path, 'r') as config_file:
@@ -53,18 +55,14 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log):
     #find files and return list
     editor = DicomCaretaker()
-    new_dicom = False
 
     for path, subdirs, files in os.walk(parent_file):
         for name in files:
-            log_path = os.path.join(out_dir, 'log.txt')
-            log = Lumberjack(log_path, verbose)
             path_message = os.path.join(path, name)
             log(path_message)
-            print os.path.join(path, name)
             try:
                 check_file_type = os.path.join(path, name)
                 working_file = os.path.join(path, name)
@@ -76,16 +74,14 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
                     # new_dicom  = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
                 else:
-                        # Do Normal Cleaning Stuff
-                    new_dicom = brew_potion(editor, working_file, out_dir, modifications, log,name)
+                    # Do Normal Cleaning Stuff
+                    brew_potion(editor, working_file, out_dir, modifications, log,name)
 
             except Exception, e:
                 print("{} failed".format(name))
                 print (str(e))
                 failure_message = "{} failed".format(name) + "\n" + str(e)
                 log(failure_message)
-
-    return new_dicom
 
 
 # def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
@@ -98,8 +94,6 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
 #     editor.end()
 
 def brew_potion(editor, working_file, out_dir, modifications,log,name):
-    new_dicom = False
-
     try:
         with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
@@ -125,10 +119,6 @@ def brew_potion(editor, working_file, out_dir, modifications,log,name):
         print (str(e))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
-
-    return new_dicom
-
-
 
 def add_hair(dicom_folders, zip_dir, log):
     for folder in dicom_folders:
@@ -165,22 +155,22 @@ def main(args):
         for io_pair in io_pairs:
             out_dir = os.path.join(out_root, io_pair['output'])
             ask_hermione(out_dir)
-            if args[_has_multiple]:
-                #Loop through ISOs and subdirectories
-                parent_file = os.path.join(in_root, io_pair['input'])
-                browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
-            else:
-                dicom_dir = os.path.join(in_root, io_pair['input'])
-                consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
+            log_path = os.path.join(out_dir, 'log.txt')
+            log = Lumberjack(log_path, verbose)
+            parent_file = os.path.join(in_root, io_pair['input'])
+            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
 
     else:
         #Loop through ISOs and subdirectories
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
-        new_dicom = browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
-        if zip_dir and new_dicom:
-            add_hair(dicom_folders, zip_dir, log)
+        log_path = os.path.join(out_dir, 'log.txt')
+        log = Lumberjack(log_path, verbose)
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
+        
+    if zip_dir:
+        add_hair(dicom_folders, zip_dir, log)
 
     # else:
     #     dicom_dir = args[INPUT_DIR]
