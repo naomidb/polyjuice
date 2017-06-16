@@ -24,6 +24,7 @@ import os.path
 import shutil
 import yaml
 import time
+import csv
 #import progressbar
 from docopt import docopt
 from lumberjack import Lumberjack
@@ -149,13 +150,18 @@ def main(args):
 
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
-
+    reset_IDS = config.get('rename_dict')
     id_matches = config.get('new_patient_ids')
-    id_pairs = {}
-    for id_match in id_matches:
-        old_id = id_match['old']
-        new_id = id_match['new']
-        id_pairs[old_id] = new_id
+    # id_pairs = {}
+    # Pulling Stuff from CSV file
+    with open(reset_IDS, mode='r') as in_oldIDfile:
+        reader = csv.reader(in_oldIDfile)
+        id_pairs = {rows[0]:rows[1] for rows in reader}
+
+    # for id_match in id_matches:
+    #     old_id = id_match['old']
+    #     new_id = id_match['new']
+    #     id_pairs[old_id] = new_id
 
     if args[_zip_folder]:
         zip_dir = config.get('zip')
@@ -187,7 +193,7 @@ def main(args):
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
         browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
-        
+
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)
 

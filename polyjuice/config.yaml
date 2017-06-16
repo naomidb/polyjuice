@@ -1,31 +1,31 @@
 #Location for the zipped files
 zip: /Users/looseymoose/Desktop/testing/polyjuice_testing/zipped_folders
-
+rename_dict: /Users/amineni95/Desktop/Projects/polyjuiceTesting/polytest.csv
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
-  #InstanceCreatorUID: 
+  #InstanceCreatorUID:
   SOPInstanceUID: ''
   AccessionNumber: ''
   InstitutionName: ''
-  #InstitutionAddress: 
+  #InstitutionAddress:
   ReferringPhysicianName: ''
-  #ReferringPhysicianAddress: 
-  #ReferringPhysicianTelephoneNumbers: 
+  #ReferringPhysicianAddress:
+  #ReferringPhysicianTelephoneNumbers:
   StationName: ''
   StudyDescription: ''
   SeriesDescription: ''
-  #InstitutionalDepartmentName: 
-  #PhysicianOfRecord: 
+  #InstitutionalDepartmentName:
+  #PhysicianOfRecord:
   #PerformingPhysicianName:
-  #NameOfPhysicianReadingStudy: 
-  #OperatorName: 
-  #AdmittingDiadnosesDescription: 
-  #ReferencedSOPInstanceUID: 
-  #DerivationDescription: 
+  #NameOfPhysicianReadingStudy:
+  #OperatorName:
+  #AdmittingDiadnosesDescription:
+  #ReferencedSOPInstanceUID:
+  #DerivationDescription:
   PatientName: Anonymous
   #PatientID: ??
   PatientBirthDate: "19990909"
-  #PatientBirthTime: 
+  #PatientBirthTime:
   PatientSex: ''
   #OtherPatientIDs:
   #OtherPatientNames:
