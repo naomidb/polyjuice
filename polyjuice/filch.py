@@ -2,17 +2,17 @@ import os
 import os.path
 import platform
 import datetime
-
+import time
+import progressbar
 class DicomCaretaker(object):
     is_iso = False
     mount_location = "myrtles_bathroom"
-    
+
     def mount_iso(self, iso_path, out):
         self.is_iso =  True
         mount_point = self.mount_location + "/ISOImage"
         # If user gives ISO then mount and pull DICOM folder from ISO
         os.system("mkdir %s" % self.mount_location)
-
         if platform.system() == 'Darwin':
             os.system("hdiutil mount -mountpoint {} {}".format(mount_point, iso_path))
         elif platform.system() == 'Linux':

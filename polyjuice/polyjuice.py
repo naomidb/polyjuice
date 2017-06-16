@@ -1,12 +1,10 @@
 #! /Library/Frameworks/Python.framework/Versions/2.7/bin/python
 docstr = """
 Polyjuice
-
 Usage:
     polyjuice.py (-h | --help)
     polyjuice.py [-lzm]  (<input_path> <output_path>) [<config_file>]
     polyjuice.py [-lzcm] [<config_file>]
-
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
@@ -16,12 +14,9 @@ Options:
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
 containing dicom files with unneccessary tags removed
-
 $ ./polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
-
 Inorder to ZIP your Cleaned Output Directory
 $ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder Path_to_Zipped_file
-
 """
 import os
 import os.path
@@ -41,7 +36,7 @@ _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
 _has_multiple = '--multiple'
-
+dicom_folders = []
 def go_to_library(config_path):
     try:
         with open(config_path, 'r') as config_file:
@@ -60,51 +55,29 @@ def ask_hermione(out_dir):
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
     #find files and return list
-    for current_file in os.listdir(parent_file):
-        print("Current File: " + current_file)
-        dicom_dir = os.path.join(parent_file, current_file)
-        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
-        #return a list
-
-def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
     editor = DicomCaretaker()
-    in_dir = editor.mount_iso(dicom_dir, out_dir)
-
-    brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
-
-    # Checking if the file is ISO
-    editor.end()
-
-def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
     new_dicom = False
-    dicom_folders = []
-    for path, subdirs, files in os.walk(in_dir):
+
+    for path, subdirs, files in os.walk(parent_file):
         for name in files:
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             path_message = os.path.join(path, name)
             log(path_message)
+            print os.path.join(path, name)
             try:
-                with open(os.path.join(path, name)) as working_file:
-                    working_message = "Working on {}".format(name)
-                    log(working_message)
+                check_file_type = os.path.join(path, name)
+                working_file = os.path.join(path, name)
+                if check_file_type.endswith(".iso"):
+                    # Do Mounting and Unmounting Stuff
+                    new_parent_dir = editor.mount_iso(working_file, out_dir)
+                    browse_restricted_section(new_parent_dir,out_dir,zip_dir,modifications,verbose)
+                    editor.end()
+                    # new_dicom  = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
-                    image = DicomImage(working_file)
-
-                    editor.scrub(image, modifications, log)
-
-                    folder_name = editor.get_folder_name(image)
-                    identified_folder = os.path.join(out_dir, folder_name)
-
-                    if not os.path.exists(identified_folder):
-                        ask_hermione(identified_folder)
-                        dicom_folders.append(identified_folder)
-
-                    editor.save_output(image, identified_folder, name)
-                    saving_message = "Saved to {}".format(identified_folder)
-                    log(saving_message)
-
-                    new_dicom = True
+                else:
+                        # Do Normal Cleaning Stuff
+                    new_dicom = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
             except Exception, e:
                 print("{} failed".format(name))
@@ -112,9 +85,50 @@ def brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose):
                 failure_message = "{} failed".format(name) + "\n" + str(e)
                 log(failure_message)
 
-    if zip_dir and new_dicom:
-        add_hair(dicom_folders, zip_dir, log)
-        
+    return new_dicom
+
+
+# def consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose):
+#     editor = DicomCaretaker()
+#     in_dir = editor.mount_iso(dicom_dir, out_dir)
+#
+#     brew_potion(editor, in_dir, out_dir, modifications, zip_dir, verbose)
+#
+#     # Checking if the file is ISO
+#     editor.end()
+
+def brew_potion(editor, working_file, out_dir, modifications,log,name):
+    new_dicom = False
+
+    try:
+        with open(working_file) as working_file:
+            working_message = "Working on {}".format(name)
+            log(working_message)
+            # print working_message
+            image = DicomImage(working_file)
+
+            editor.scrub(image, modifications, log)
+
+            folder_name = editor.get_folder_name(image)
+            identified_folder = os.path.join(out_dir, folder_name)
+
+            if not os.path.exists(identified_folder):
+                ask_hermione(identified_folder)
+                dicom_folders.append(identified_folder)
+
+            editor.save_output(image, identified_folder, name)
+            saving_message = "Saved to {}".format(identified_folder)
+            log(saving_message)
+
+    except Exception, e:
+        print("{} failed".format(name))
+        print (str(e))
+        failure_message = "{} failed".format(name) + "\n" + str(e)
+        log(failure_message)
+
+    return new_dicom
+
+
 
 def add_hair(dicom_folders, zip_dir, log):
     for folder in dicom_folders:
@@ -141,7 +155,7 @@ def main(args):
         zip_dir = None
 
     verbose = args[_print_log]
-    
+
     if args[_use_config]:
         #get from config file
         in_root = config.get('in_data_root')
@@ -159,18 +173,20 @@ def main(args):
                 dicom_dir = os.path.join(in_root, io_pair['input'])
                 consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
-    elif args[_has_multiple]:
+    else:
         #Loop through ISOs and subdirectories
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
+        new_dicom = browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose)
+        if zip_dir and new_dicom:
+            add_hair(dicom_folders, zip_dir, log)
 
-    else:
-        dicom_dir = args[INPUT_DIR]
-        out_dir = args[OUTPUT_DIR]
-        ask_hermione(out_dir)
-        consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
+    # else:
+    #     dicom_dir = args[INPUT_DIR]
+    #     out_dir = args[OUTPUT_DIR]
+    #     ask_hermione(out_dir)
+    #     consult_book(dicom_dir, out_dir, zip_dir, modifications, verbose)
 
         #TODO: Find where to put progress bar
         '''bar = progressbar.ProgressBar()
