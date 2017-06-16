@@ -55,9 +55,20 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
     #find files and return list
     editor = DicomCaretaker()
+
+    if os.path.isfile(parent_file):
+        try:
+            brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
+        except Exception, e:
+            print("{} failed".format(name))
+            print (str(e))
+            failure_message = "{} failed".format(name) + "\n" + str(e)
+            log(failure_message)
+
+        return
 
     for path, subdirs, files in os.walk(parent_file):
         for name in files:
@@ -69,13 +80,13 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
                 if check_file_type.endswith(".iso"):
                     # Do Mounting and Unmounting Stuff
                     new_parent_dir = editor.mount_iso(working_file, out_dir)
-                    browse_restricted_section(new_parent_dir,out_dir,zip_dir,modifications,verbose)
+                    browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
                     editor.end()
                     # new_dicom  = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
                 else:
                     # Do Normal Cleaning Stuff
-                    brew_potion(editor, working_file, out_dir, modifications, log,name)
+                    brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
 
             except Exception, e:
                 print("{} failed".format(name))
@@ -93,15 +104,16 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
 #     # Checking if the file is ISO
 #     editor.end()
 
-def brew_potion(editor, working_file, out_dir, modifications,log,name):
+def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
     try:
+        name = os.path.basename(working_file)
         with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
             log(working_message)
             # print working_message
             image = DicomImage(working_file)
 
-            editor.scrub(image, modifications, log)
+            editor.scrub(image, modifications, id_pairs, log)
 
             folder_name = editor.get_folder_name(image)
             identified_folder = os.path.join(out_dir, folder_name)
@@ -138,6 +150,13 @@ def main(args):
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
 
+    id_matches = config.get('new_patient_ids')
+    id_pairs = {}
+    for id_match in id_matches:
+        old_id = id_match['old']
+        new_id = id_match['new']
+        id_pairs[old_id] = new_id
+
     if args[_zip_folder]:
         zip_dir = config.get('zip')
         print("zip folder " + str(zip_dir))
@@ -158,7 +177,7 @@ def main(args):
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
-            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
+            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
 
     else:
         #Loop through ISOs and subdirectories
@@ -167,7 +186,7 @@ def main(args):
         ask_hermione(out_dir)
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, log)
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
         
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)

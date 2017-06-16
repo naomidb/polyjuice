@@ -20,10 +20,12 @@ class DicomCaretaker(object):
 
         return mount_point
 
-    def scrub(self, image, modifications, log):
+    def scrub(self, image, modifications, id_pairs, log):
         for key, value in modifications.items():
             delete = True if value == None else False
             image.modify_item(key, value, delete, log)
+
+        image.update_patient_id(id_pairs, log)
 
     def get_folder_name(self, image):
         study_date = image.get_study_date()

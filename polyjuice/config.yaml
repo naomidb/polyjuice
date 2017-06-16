@@ -1,12 +1,6 @@
 #Location for the zipped files
 zip: /Users/looseymoose/Desktop/testing/polyjuice_testing/zipped_folders
 
-#This key has a value with the list of tags that should be deleted from the dicom file
-deletions:
-  - RescaleIntercept
-  - RescaleSlope
-  - RescaleType
-
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
   #InstanceCreatorUID: 
@@ -61,6 +55,12 @@ modifications:
   RescaleSlope: Null
   RescaleType: Null
 
+new_patient_ids:
+  - old: '110004'
+    new: '9999999'
+  - old: wklfdsdfkm
+    new: dfsljf
+
 #Optional: Use the dictionaries below to go through multiple ISOs
 
 #This is the filepath for the input and output. Put the actual files in the IO_pairs dictionary.
@@ -72,3 +72,6 @@ io_pairs:
     output: clean_test
   - input: 110024-5-2-2013-PET-Amyvid-Florbetapir.iso
     output: clean_test
+
+ignore:
+  - .DS_Store

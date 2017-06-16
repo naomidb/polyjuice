@@ -8,22 +8,31 @@ class DicomImage(object):
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset
         if (key in _dataset):
-            item = _dataset.data_element(key).tag
+            tag_number = _dataset.data_element(key).tag
             if delete:
-                del _dataset[item]
+                del _dataset[tag_number]
                 action = "deleted"
             else:
-                item.value = value
+                _dataset[tag_number].value = value
                 action = "modified"
 
             if log:
                 modify_message = "{} {}".format(key, action)
                 log(modify_message)
 
+    def update_patient_id(self, id_pairs, log):
+        _dataset = self._dataset
+        patient_id = self.get_patient_id()
+        if (patient_id in id_pairs):
+            new_id = id_pairs.get(patient_id)
+            id_message = "New ID: " + new_id
+            log(id_message)
+            self.modify_item('PatientID', new_id, False, log)
+
     def get_value(self, key):
         _dataset = self._dataset
-        item = _dataset.data_element(key).tag
-        return _dataset[item].value
+        tag_number = _dataset.data_element(key).tag
+        return _dataset[tag_number].value
 
     def get_study_date(self):
         return self.get_value('StudyDate')
