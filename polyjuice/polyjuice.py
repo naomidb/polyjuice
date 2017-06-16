@@ -55,7 +55,6 @@ def ask_hermione(out_dir):
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verbose):
     #find files and return list
-    dicom_folders = []
     editor = DicomCaretaker()
     new_dicom = False
 
@@ -68,17 +67,17 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
             print os.path.join(path, name)
             try:
                 check_file_type = os.path.join(path, name)
+                working_file = os.path.join(path, name)
                 if check_file_type.endswith(".iso"):
-                    with open(os.path.join(path, name)) as working_file:
-                            # Do Mounting and Unmounting Stuff
-                            new_parent_dir = editor.mount_iso(working_file, out_dir)
-                            browse_restricted_section(new_parent_dir,out_dir,zip_dir,modifications,verbose)
-                            new_dicom  = brew_potion(editor, working_file, out_dir, modifications, zip_dir, verbose)
+                    # Do Mounting and Unmounting Stuff
+                    new_parent_dir = editor.mount_iso(working_file, out_dir)
+                    browse_restricted_section(new_parent_dir,out_dir,zip_dir,modifications,verbose)
+                    editor.end()
+                    # new_dicom  = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
                 else:
                         # Do Normal Cleaning Stuff
-                    with open(os.path.join(path, name)) as working_file:
-                        new_dicom = brew_potion(editor, parent_file, out_dir, modifications, zip_dir, verbose)
+                    new_dicom = brew_potion(editor, working_file, out_dir, modifications, log,name)
 
             except Exception, e:
                 print("{} failed".format(name))
@@ -86,7 +85,6 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
                 failure_message = "{} failed".format(name) + "\n" + str(e)
                 log(failure_message)
 
-    editor.end()
     return new_dicom
 
 
@@ -99,14 +97,14 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, verb
 #     # Checking if the file is ISO
 #     editor.end()
 
-def brew_potion(editor, main_working_file, out_dir, modifications, zip_dir, verbose):
+def brew_potion(editor, working_file, out_dir, modifications,log,name):
     new_dicom = False
 
     try:
-        with open(main_working_file) as working_file:
+        with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
             log(working_message)
-            print working_message
+            # print working_message
             image = DicomImage(working_file)
 
             editor.scrub(image, modifications, log)
