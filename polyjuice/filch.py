@@ -41,7 +41,7 @@ class DicomCaretaker(object):
         output = os.path.join(identified_folder, filename)
         image.save_image(output)
 
-    def end(self):
+    def unmount_iso(self):
         mount_location = self.mount_location
         if self.is_iso:
             if platform.system() == 'Darwin':

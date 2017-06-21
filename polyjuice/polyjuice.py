@@ -3,14 +3,13 @@ docstr = """
 Polyjuice
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-lzm]  (<input_path> <output_path>) [<config_file>]
-    polyjuice.py [-lzcm] [<config_file>]
+    polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
+    polyjuice.py [-lzc] [<config_file>]
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
-  -m --multiple                 Use input folder with multiple ISOs or directories that should have unique output folders
 Instructions:
     Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
 containing dicom files with unneccessary tags removed
@@ -37,7 +36,6 @@ OUTPUT_DIR = '<output_path>'
 _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
-_has_multiple = '--multiple'
 dicom_folders = []
 
 def go_to_library(config_path):
@@ -82,7 +80,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     # Do Mounting and Unmounting Stuff
                     new_parent_dir = editor.mount_iso(working_file, out_dir)
                     browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
-                    editor.end()
+                    editor.unmount_iso()
                 else:
                     # Do Normal Cleaning Stuff
                     brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
