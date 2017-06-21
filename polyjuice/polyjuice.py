@@ -60,7 +60,13 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
 
     if os.path.isfile(parent_file):
         try:
-            brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
+            if parent_file.endswith(".iso"):
+                # Do Mounting and Unmounting Stuff
+                new_parent_dir = editor.mount_iso(parent_file, out_dir)
+                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                editor.unmount_iso()
+            else:
+                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
         except Exception, e:
             print("{} failed".format(name))
             print (str(e))
