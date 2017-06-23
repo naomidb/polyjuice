@@ -142,13 +142,17 @@ def main(args):
     modifications = config.get('modifications')
 
     reset_IDS = config.get('new_IDs')
-    try:
-        id_matches = config.get('new_patient_ids')
-        with open(reset_IDS, mode='r') as in_oldIDfile:
-            reader = csv.reader(in_oldIDfile)
-            id_pairs = {rows[0]:rows[1] for rows in reader}
-    except Exception, e:
-        print("Check CSV. \n" + str(e))
+    if os.path.exists(str(reset_IDS)):
+        try:
+            id_matches = config.get('new_patient_ids')
+            with open(reset_IDS, mode='r') as in_oldIDfile:
+                reader = csv.reader(in_oldIDfile)
+                id_pairs = {rows[0]:rows[1] for rows in reader}
+        except Exception, e:
+            print("Check CSV. \n" + str(e))
+    else:
+        print("Didn't find CSV file so renaming file to OldPatientID")
+        id_pairs = {}
 
     if args[_zip_folder]:
         zip_dir = config.get('zip')
@@ -163,18 +167,19 @@ def main(args):
         in_root = config.get('in_data_root')
         out_root = config.get('out_data_root')
         io_pairs = config.get('io_pairs')
-
-        for io_pair in io_pairs:
-            out_dir = os.path.join(out_root, io_pair['output'])
-            ask_hermione(out_dir)
-            log_path = os.path.join(out_dir, 'log.txt')
-            log = Lumberjack(log_path, verbose)
-            parent_file = os.path.join(in_root, io_pair['input'])
-            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+        if os.path.exists(in_root):
+            for io_pair in io_pairs:
+                out_dir = os.path.join(out_root, io_pair['output'])
+                ask_hermione(out_dir)
+                log_path = os.path.join(out_dir, 'log.txt')
+                log = Lumberjack(log_path, verbose)
+                parent_file = os.path.join(in_root, io_pair['input'])
+                browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+        else:
+            print "Check Input Path in Config File"
 
     else:
         #Loop through ISOs and subdirectories
-
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         if os.path.exists(parent_file):
