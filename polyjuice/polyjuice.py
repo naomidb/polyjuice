@@ -55,7 +55,6 @@ def ask_hermione(out_dir):
             raise e
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
-    #find files and return list
     editor = DicomCaretaker()
 
     if os.path.isfile(parent_file):
@@ -73,29 +72,29 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             failure_message = "{} failed".format(name) + "\n" + str(e)
             log(failure_message)
 
-        return
+    else:
+        for path, subdirs, files in os.walk(parent_file):
+            for name in files:
+                path_message = os.path.join(path, name)
+                log(path_message)
+                try:
+                    check_file_type = os.path.join(path, name)
+                    working_file = os.path.join(path, name)
+                    if check_file_type.endswith(".iso"):
+                        # Do Mounting and Unmounting Stuff
+                        new_parent_dir = editor.mount_iso(working_file, out_dir)
+                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                        editor.unmount_iso()
+                    else:
+                        # Do Normal Cleaning Stuff
+                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
 
-    for path, subdirs, files in os.walk(parent_file):
-        for name in files:
-            path_message = os.path.join(path, name)
-            log(path_message)
-            try:
-                check_file_type = os.path.join(path, name)
-                working_file = os.path.join(path, name)
-                if check_file_type.endswith(".iso"):
-                    # Do Mounting and Unmounting Stuff
-                    new_parent_dir = editor.mount_iso(working_file, out_dir)
-                    browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
-                    editor.unmount_iso()
-                else:
-                    # Do Normal Cleaning Stuff
-                    brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
-
-            except Exception, e:
-                print("{} failed".format(name))
-                print (str(e))
-                failure_message = "{} failed".format(name) + "\n" + str(e)
-                log(failure_message)
+                except Exception, e:
+                    print("{} failed".format(name))
+                    print (str(e))
+                    failure_message = "{} failed".format(name) + "\n" + str(e)
+                    log(failure_message)
+    return
 
 def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
     try:

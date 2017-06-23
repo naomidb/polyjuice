@@ -4,6 +4,7 @@ class DicomImage(object):
 
     def __init__(self, dicom_file):
         self._dataset = dicom.read_file(dicom_file)
+        self.filepath = dicom_file.name
 
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset
@@ -17,7 +18,7 @@ class DicomImage(object):
                 action = "modified"
 
             if log:
-                modify_message = "{} {}".format(key, action)
+                modify_message = "{}: {} {}".format(self.filepath, key, action)
                 log(modify_message)
 
     def update_patient_id(self, id_pairs, log):
@@ -25,7 +26,7 @@ class DicomImage(object):
         patient_id = self.get_patient_id()
         if (patient_id in id_pairs):
             new_id = id_pairs.get(patient_id)
-            id_message = "New ID: " + new_id
+            id_message = "{}: New ID: {}".format(self.filepath, new_id)
             log(id_message)
             self.modify_item('PatientID', new_id, False, log)
 
