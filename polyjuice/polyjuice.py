@@ -174,12 +174,17 @@ def main(args):
 
     else:
         #Loop through ISOs and subdirectories
+
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
-        ask_hermione(out_dir)
-        log_path = os.path.join(out_dir, 'log.txt')
-        log = Lumberjack(log_path, verbose)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+        if os.path.exists(parent_file):
+            ask_hermione(out_dir)
+            log_path = os.path.join(out_dir, 'log.txt')
+            log = Lumberjack(log_path, verbose)
+            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+        else:
+            print "Check Input file Path"
+            return
 
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)
