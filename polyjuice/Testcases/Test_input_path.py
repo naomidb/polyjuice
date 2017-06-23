@@ -2,7 +2,7 @@ import unittest
 import sys
 import os
 import yaml
-config_path = '/Users/amineni95/Desktop/Projects/polyjuice/polyjuice/Testcases/config.yaml'
+config_path = '/Users/amineni95/Desktop/Projects/polyjuice/polyjuice/Testcases/test_config.yaml'
 class check_inputfile_path(unittest.TestCase):
     def test_lookupfile_exists(self):
         try:

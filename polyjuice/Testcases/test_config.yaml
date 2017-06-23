@@ -1,0 +1,5 @@
+input_path: /Users/amineni95/Desktop/CheckMRI
+csv_path: /Users/amineni95/Desktop/Projects/polyjuiceTesting/polytest.csv
+output_path: /Users/amineni95/Desktop/CheckMRI/UpdatedResults
+zip_path: /Users/amineni95/Desktop/CheckMRI/zippedResults
+expected_output_path: /Users/amineni95/Desktop/Output/output.csv
