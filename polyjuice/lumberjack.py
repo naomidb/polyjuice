@@ -16,7 +16,7 @@ class Lumberjack(object):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         time_message = sep + " " + timestamp + " " + sep
         self.__call__(time_message)
-        self.__call__(sep + sep + sep)
+        self.__call__(sep * 4)
 
 
     def __call__(self, message):

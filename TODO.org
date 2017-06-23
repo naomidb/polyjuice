@@ -2,6 +2,10 @@
 
 * Have polyjuice read Ignore list
 
+* [maybe] Rename files numerically
+
+* Test on Linux
+
 ---------------------------------------------------
 
 # Complete
