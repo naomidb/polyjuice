@@ -1,0 +1,72 @@
+#Location for the zipped files
+zip: /my/path/to/zipped_folders
+new_IDs: /my/path/to/ids.csv
+
+#This dictionary has a dictionary of tags whose value should be modified
+modifications:
+  #InstanceCreatorUID:
+  SOPInstanceUID: ''
+  AccessionNumber: ''
+  InstitutionName: ''
+  #InstitutionAddress:
+  ReferringPhysicianName: ''
+  #ReferringPhysicianAddress:
+  #ReferringPhysicianTelephoneNumbers:
+  StationName: ''
+  StudyDescription: ''
+  SeriesDescription: ''
+  #InstitutionalDepartmentName:
+  #PhysicianOfRecord:
+  #PerformingPhysicianName:
+  #NameOfPhysicianReadingStudy:
+  #OperatorName:
+  #AdmittingDiadnosesDescription:
+  #ReferencedSOPInstanceUID:
+  #DerivationDescription:
+  PatientName: Anonymous
+  #PatientID: 
+  PatientBirthDate: "19990909"
+  #PatientBirthTime:
+  PatientSex: ''
+  #OtherPatientIDs:
+  #OtherPatientNames:
+  PatientAge: ''
+  #PatientSize:
+  PatientWeight: ''
+  #MedicalRecordLocator:
+  EthnicGroup: ''
+  #Occupation:
+  #AdditionalPatientHistory:
+  #PatientComments:
+  #DeviceSerialNumber:
+  ProtocolName: ''
+  StudyInstanceUID: ''
+  SeriesInstanceUID: ''
+  StudyID: ''
+  #FrameOfReferenceUID:
+  #SynchronizationonFrameOfReferenceUID:
+  #ImageComments:
+  #RequestAttributesSequence:
+  #UID:
+  #ContentSequence:
+  #StorageMediaFileSetUID:
+  #ReferencedFrameOfReferenceUID:
+  #RelatedFrameOfReferenceUID:
+  RescaleIntercept: Null
+  RescaleSlope: Null
+  RescaleType: Null
+
+#Optional: Use the dictionaries below to go through multiple ISOs
+
+#This is the filepath for the input and output. Put the actual files in the IO_pairs dictionary.
+in_data_root: my/root/input/path
+out_data_root: my/root/output/path
+
+io_pairs:
+  - input: example.iso
+    output: output_folder1
+  - input: example/directory
+    output: output_folder2
+
+ignore:
+  - .DS_Store
