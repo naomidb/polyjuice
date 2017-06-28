@@ -25,7 +25,6 @@ import shutil
 import yaml
 import time
 import csv
-#import progressbar
 from docopt import docopt
 from lumberjack import Lumberjack
 from filch import DicomCaretaker
