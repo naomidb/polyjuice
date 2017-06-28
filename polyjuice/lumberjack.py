@@ -11,12 +11,12 @@ class Lumberjack(object):
         name = date + '_' + filename
         path = os.path.dirname(filepath)
         self.log_path = os.path.join(path, name)
-        
+
         sep = '#' * 10
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         time_message = sep + " " + timestamp + " " + sep
         self.__call__(time_message)
-        self.__call__(sep * 4)
+        self.__call__(sep + sep + sep)
 
 
     def __call__(self, message):
