@@ -1,5 +1,3 @@
 docopt==0.6.2
 pydicom==0.9.9
-PyScaffold==2.5.7
 PyYAML==3.12
-six==1.10.0
