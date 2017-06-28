@@ -67,6 +67,3 @@ io_pairs:
     output: output_folder1
   - input: example/directory
     output: output_folder2
-
-ignore:
-  - .DS_Store

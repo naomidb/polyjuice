@@ -11,11 +11,12 @@ Options:
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
 Instructions:
-    Run polyjuice on the ISO file or on the Extracted DICOM folder. This will give an ouput folder
-containing dicom files with unneccessary tags removed
-$ ./polyjuice.py path_to_ISOfile.iso path_to_OutputFolder
-Inorder to ZIP your Cleaned Output Directory
-$ ./polyjuice.py -z path_to_ISOfile.iso path_to_OutputFolder Path_to_Zipped_file
+    Run polyjuice on individual files, ISOs, or directories. This will give an ouput folder
+containing dicom files that have had their tags cleaned according to your standards set in the config file.
+$ ./polyjuice.py path/to/input path/to/output
+If you put your inputs and outputs in the config file, you can use the flag -c and write:
+$ ./polyjuice.py
+In order to ZIP your Cleaned Output Directory, add the -z flag.
 """
 
 import os
@@ -39,6 +40,7 @@ _use_config = '--config'
 dicom_folders = []
 
 def go_to_library(config_path):
+    #Read in the config file. If the config file is missing or the wrong format, exit the program.
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
@@ -48,6 +50,7 @@ def go_to_library(config_path):
     return config
 
 def ask_hermione(out_dir):
+    #Check if directory exists. If not, create it.
     if not os.path.exists(out_dir):
         try:
             os.makedirs(out_dir)
@@ -55,16 +58,18 @@ def ask_hermione(out_dir):
             raise e
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
+    #Walk through directories and send individual files to be cleaned.
     editor = DicomCaretaker()
 
     if os.path.isfile(parent_file):
         try:
             if parent_file.endswith(".iso"):
-                # Do Mounting and Unmounting Stuff
+                # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
                 browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
                 editor.unmount_iso()
             else:
+                #Send file to be cleaned
                 brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
         except Exception, e:
             print("{} failed".format(name))
@@ -81,12 +86,12 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     check_file_type = os.path.join(path, name)
                     working_file = os.path.join(path, name)
                     if check_file_type.endswith(".iso"):
-                        # Do Mounting and Unmounting Stuff
+                        # Mount and Unmount ISO
                         new_parent_dir = editor.mount_iso(working_file, out_dir)
                         browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
                         editor.unmount_iso()
                     else:
-                        # Do Normal Cleaning Stuff
+                        # Send file to be cleaned
                         brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
 
                 except Exception, e:
@@ -97,6 +102,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
     return
 
 def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
+    #Use DicomCaretaker to clean files and find approprite folders to save the output
     try:
         name = os.path.basename(working_file)
         with open(working_file) as working_file:
@@ -124,6 +130,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
         log(failure_message)
 
 def add_hair(dicom_folders, zip_dir, log):
+    #Zip folders with cleaned DICOM images and move them to zip directory specified in config file
     for folder in dicom_folders:
         shutil.make_archive(folder, 'zip', folder)
         zipped_message = "{} archived".format(folder)

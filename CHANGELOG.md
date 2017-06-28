@@ -22,6 +22,11 @@ Example
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 
+##[0.1.0]
+ * Add DicomImage class
+ * Add logger (Lumberjack)
+ * Add id csv
+
 ##[0.0.1]
  * Add gitignore
  * Create README.md, CHANGELOG.md, AUTHORS and LICENSE

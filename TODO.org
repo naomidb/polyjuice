@@ -23,3 +23,5 @@
 * Make logger class or function
 
 * Find way to get around needing to use --multiple option
+
+* Add docstrings to polyjuice
