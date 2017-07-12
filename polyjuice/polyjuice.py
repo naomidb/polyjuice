@@ -155,6 +155,7 @@ def main(args):
             id_pairs = {rows[0]:rows[1] for rows in reader}
     except Exception, e:
         print("Check CSV. \n" + str(e))
+        id_pairs = {}
 
     if args[_zip_folder]:
         zip_dir = config.get('zip')

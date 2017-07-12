@@ -6,6 +6,8 @@
 
 * Test on Linux
 
+* Make new id csv not required
+
 ---------------------------------------------------
 
 # Complete
