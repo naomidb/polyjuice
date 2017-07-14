@@ -8,6 +8,10 @@
 
 * Make new id csv not required
 
+* Change Tags (0008 ,1048 ) , (0032 ,1032)
+
+* Change the PatientsID to NACC format
+
 ---------------------------------------------------
 
 # Complete
