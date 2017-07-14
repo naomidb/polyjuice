@@ -32,7 +32,7 @@ class DicomCaretaker(object):
         patient_id = image.get_patient_id()
 
         #Change study_date to desired format
-        desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
+        desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m_%d_%Y')
         #Rename according to NACC conventions
         folder_name = patient_id + "_" + desired_study_date
         return folder_name
