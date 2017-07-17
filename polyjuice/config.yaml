@@ -1,6 +1,6 @@
 #Location for the zipped files
 zip: /my/path/to/zipped_folders
-new_IDs: /my/path/to/ids.csv
+new_IDs: /Users/amineni95/Desktop/Projects/polyjuice/polyjuice/ids.csv
 
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
@@ -15,8 +15,9 @@ modifications:
   StationName: ''
   StudyDescription: ''
   SeriesDescription: ''
+  RequestingPhysician: ''
   #InstitutionalDepartmentName:
-  #PhysicianOfRecord:
+  PhysiciansOfRecord: ''
   #PerformingPhysicianName:
   #NameOfPhysicianReadingStudy:
   #OperatorName:
@@ -24,7 +25,7 @@ modifications:
   #ReferencedSOPInstanceUID:
   #DerivationDescription:
   PatientName: Anonymous
-  #PatientID: 
+  #PatientID:
   PatientBirthDate: "19990909"
   #PatientBirthTime:
   PatientSex: ''

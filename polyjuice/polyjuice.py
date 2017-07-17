@@ -37,6 +37,7 @@ _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
 dicom_folders = []
+unknown_ids = []
 
 def go_to_library(config_path):
     #Read in the config file. If the config file is missing or the wrong format, exit the program.
@@ -103,6 +104,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
 def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
     #Use DicomCaretaker to clean files and find approprite folders to save the output
     try:
+
         name = os.path.basename(working_file)
         with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
@@ -110,7 +112,10 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
             # print working_message
             image = DicomImage(working_file)
 
-            editor.scrub(image, modifications, id_pairs, log)
+            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
+
+            if id_issue:
+                return
 
             folder_name = editor.get_folder_name(image)
             identified_folder = os.path.join(out_dir, folder_name)
@@ -127,6 +132,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
         print("{} failed".format(name))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
+    return
 
 def add_hair(dicom_folders, zip_dir, log):
     #Zip folders with cleaned DICOM images and move them to zip directory specified in config file
