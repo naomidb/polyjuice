@@ -15,8 +15,9 @@ modifications:
   StationName: ''
   StudyDescription: ''
   SeriesDescription: ''
+  RequestingPhysician: ''
   #InstitutionalDepartmentName:
-  #PhysicianOfRecord:
+  PhysiciansOfRecord: ''
   #PerformingPhysicianName:
   #NameOfPhysicianReadingStudy:
   #OperatorName:
