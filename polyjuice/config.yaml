@@ -1,5 +1,5 @@
 #Location for the zipped files
-zip: /my/path/to/zipped_folders
+zip: /Users/amineni95/Desktop/UploadTest/NewZIP
 new_IDs: /Users/amineni95/Desktop/Projects/polyjuice/polyjuice/ids.csv
 
 #This dictionary has a dictionary of tags whose value should be modified

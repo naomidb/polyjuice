@@ -3,13 +3,13 @@ docstr = """
 Polyjuice
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
-    polyjuice.py [-lzc] [<config_file>]
+    polyjuice.py [-lj]  (<input_path> <output_path>) [<config_file>]
+    polyjuice.py [-lcj] [<config_file>]
 Options:
   -h --help                     Show this message and exit
-  -z --zip                      Archives the output folder
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
+  -j --json                     Get the tags in JSON format
 Instructions:
     Run polyjuice on individual files, ISOs, or directories. This will give an ouput folder
 containing dicom files that have had their tags cleaned according to your standards set in the config file.
@@ -34,8 +34,8 @@ CONFIG_PATH = '<config_file>'
 INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
 _print_log = '--log'
-_zip_folder = '--zip'
 _use_config = '--config'
+_obtain_json = '--json'
 dicom_folders = []
 unknown_ids = []
 
@@ -57,7 +57,7 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log,json_path):
     #Walk through directories and send individual files to be cleaned.
     editor = DicomCaretaker()
 
@@ -66,11 +66,11 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             if parent_file.endswith(".iso"):
                 # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
-                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, json_path)
                 editor.unmount_iso()
             else:
                 #Send file to be cleaned
-                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
+                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log, json_path)
         except Exception, e:
             print("{} failed".format(name))
             print (str(e))
@@ -88,11 +88,11 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     if check_file_type.endswith(".iso"):
                         # Mount and Unmount ISO
                         new_parent_dir = editor.mount_iso(working_file, out_dir)
-                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, json_path)
                         editor.unmount_iso()
                     else:
                         # Send file to be cleaned
-                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
+                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, json_path)
 
                 except Exception, e:
                     print("{} failed".format(name))
@@ -101,18 +101,25 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     log(failure_message)
     return
 
-def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
+def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, json_path):
     #Use DicomCaretaker to clean files and find approprite folders to save the output
     try:
 
         name = os.path.basename(working_file)
+        print "Name is"+name
+        print "JSON Path is"+json_path
+
         with open(working_file) as working_file:
+            print "Hello"
             working_message = "Working on {}".format(name)
             log(working_message)
             # print working_message
+            # import pdb; pdb.set_trace()
+
             image = DicomImage(working_file)
 
-            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
+
+            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids,json_path)
 
             if id_issue:
                 return
@@ -146,6 +153,9 @@ def add_hair(dicom_folders, zip_dir, log):
         move_zip_message = "{} moved to {}".format(folder, zip_dir)
         log(move_zip_message)
 
+
+
+
 def main(args):
     if not args[CONFIG_PATH]:
         args[CONFIG_PATH] = 'config.yaml'
@@ -155,21 +165,21 @@ def main(args):
 
     reset_IDS = config.get('new_IDs')
     try:
-        id_matches = config.get('new_patient_ids')
         with open(reset_IDS, mode='r') as in_oldIDfile:
             reader = csv.reader(in_oldIDfile)
             id_pairs = {rows[0]:rows[1] for rows in reader}
     except Exception, e:
         print("Check CSV. \n" + str(e))
-        id_pairs = {}
+        return
 
-    if args[_zip_folder]:
-        zip_dir = config.get('zip')
-        print("zip folder " + str(zip_dir))
-    else:
-        zip_dir = None
+    zip_dir = config.get('zip')
+    print("zip folder " + str(zip_dir))
 
     verbose = args[_print_log]
+    json_flag = args[_obtain_json]
+    #if(json_flag)
+    #json_path = os.path.join(out_dir, 'json_store')
+    #ask_hermione(json_path)
 
     if args[_use_config]:
         #get from config file
@@ -183,7 +193,12 @@ def main(args):
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
-            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+
+            json_path = None
+            if(json_flag):
+                json_path = os.path.join(out_dir, 'json_store')
+                ask_hermione(json_path)
+            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, json_path)
 
     else:
         #Loop through ISOs and subdirectories
@@ -192,12 +207,16 @@ def main(args):
         ask_hermione(out_dir)
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
 
-    if zip_dir:
-        add_hair(dicom_folders, zip_dir, log)
+        json_path = None
+        if(json_flag):
+            json_path = os.path.join(out_dir, 'json_store')
+            ask_hermione(json_path)
+        print json_path
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, json_path)
 
-# Integrating Things with Docopt
+    add_hair(dicom_folders, zip_dir, log)
+
 if __name__ == '__main__':
     args = docopt(docstr)
     main(args)
