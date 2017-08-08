@@ -21,10 +21,10 @@ class DicomCaretaker(object):
 
         return mount_point
 
-    def scrub(self, image, modifications, id_pairs, log, unknown_ids, json_path):
-        if json_path:
-            image.get_json(json_path)
-            
+    def scrub(self, image, modifications, id_pairs, log, unknown_ids, metadata_path):
+        if metadata_path:
+            image.get_metadata(metadata_path)
+
         for key, value in modifications.items():
             delete = True if value == None else False
             image.modify_item(key, value, delete, log)

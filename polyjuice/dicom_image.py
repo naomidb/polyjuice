@@ -6,16 +6,14 @@ class DicomImage(object):
         self._dataset = dicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
-    def get_json(self, json_output):
+    def get_metadata(self, metadata_output):
         _dataset = self._dataset
-        # str = ""
         patient_id = self.get_patient_id()
         json_file_name = patient_id+".txt"
-        json_file = os.path.join(json_output, json_file_name)
+        json_file = os.path.join(metadata_output, json_file_name)
         key_value = {}
         with open(json_file,"a") as my_file:
             my_file.write(str(_dataset))
-        print "My file Name"+json_file_name
 
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset
