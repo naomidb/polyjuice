@@ -10,7 +10,7 @@ setup(name='polyjuice',
     packages=find_packages(),
     entry_points={
           'console_scripts': [
-              'polyjuice = polyjuice.__main__:main',
+              'polyjuice = polyjuice.polyjuice:poly_run',
           ],
       },
     install_requires=['docopt', 'pydicom', 'PyYaml'])

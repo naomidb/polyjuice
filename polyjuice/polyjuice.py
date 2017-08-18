@@ -189,7 +189,7 @@ def main(args):
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
-            
+
             if(metadata_flag):
                 metadata_path = os.path.join(out_dir, 'meta_data')
                 ask_hermione(metadata_path)
@@ -212,6 +212,10 @@ def main(args):
 
     add_hair(dicom_folders, zip_dir, log)
 
-if __name__ == '__main__':
+def poly_run():
     args = docopt(docstr)
     main(args)
+
+if __name__ == '__main__':
+    poly_run()
+    exit()
