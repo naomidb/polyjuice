@@ -11,7 +11,6 @@ class DicomImage(object):
     def write_metadata(self, metadata_path):
         metadata_filename = self.get_patient_id() + ".txt"
         image_metadata_path = os.path.join(metadata_path, metadata_filename)
-        key_value = {}
         with open(image_metadata_path, "a") as my_file:
             my_file.write(str(self._dataset))
 
