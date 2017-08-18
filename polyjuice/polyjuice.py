@@ -154,9 +154,18 @@ def add_hair(dicom_folders, zip_dir, log):
         move_zip_message = "{} moved to {}".format(folder, zip_dir)
         log(move_zip_message)
 
+def find_config():
+    my_config_path = ""
+    current_path = os.getcwd()
+    for path, subdirs, files in os.walk(current_path):
+        for name in files:
+            if name == 'config.yaml':
+                return os.path.join(path, name)
+    exit('No config found')
+
 def main(args):
     if not args[CONFIG_PATH]:
-        args[CONFIG_PATH] = 'config.yaml'
+        args[CONFIG_PATH] = find_config()
 
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
