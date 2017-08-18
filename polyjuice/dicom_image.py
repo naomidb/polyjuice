@@ -1,19 +1,19 @@
-import dicom
 import os
+
+import dicom
+
 class DicomImage(object):
 
     def __init__(self, dicom_file):
         self._dataset = dicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
-    def get_metadata(self, metadata_output):
-        _dataset = self._dataset
-        patient_id = self.get_patient_id()
-        json_file_name = patient_id+".txt"
-        json_file = os.path.join(metadata_output, json_file_name)
+    def write_metadata(self, metadata_path):
+        metadata_filename = self.get_patient_id() + ".txt"
+        image_metadata_path = os.path.join(metadata_path, metadata_filename)
         key_value = {}
-        with open(json_file,"a") as my_file:
-            my_file.write(str(_dataset))
+        with open(image_metadata_path, "a") as my_file:
+            my_file.write(str(self._dataset))
 
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset

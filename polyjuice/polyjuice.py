@@ -57,8 +57,9 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log,metadata_path):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path):
     #Walk through directories and send individual files to be cleaned.
+
     editor = DicomCaretaker()
 
     if os.path.isfile(parent_file):
@@ -101,8 +102,12 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     log(failure_message)
     return
 
-def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, metadata_path):
-    #Use DicomCaretaker to clean files and find approprite folders to save the output
+def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, metadata_path=None):
+    """
+    Use DicomCaretaker to clean files and find approprite folders to save the output
+
+    If metadata_path is passed a file with the tags of the image will be written to ....
+    """
     try:
 
         name = os.path.basename(working_file)
@@ -112,7 +117,10 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, met
 
             image = DicomImage(working_file)
 
-            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids,metadata_path)
+            if metadata_path:
+                image.write_metadata(metadata_path)
+
+            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
 
             if id_issue:
                 return
@@ -146,15 +154,13 @@ def add_hair(dicom_folders, zip_dir, log):
         move_zip_message = "{} moved to {}".format(folder, zip_dir)
         log(move_zip_message)
 
-
-
-
 def main(args):
     if not args[CONFIG_PATH]:
         args[CONFIG_PATH] = 'config.yaml'
 
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
+    metadata_path = ""
 
     reset_IDS = config.get('new_IDs')
     try:
@@ -183,11 +189,11 @@ def main(args):
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
-
-            json_path = None
+            
             if(metadata_flag):
                 metadata_path = os.path.join(out_dir, 'meta_data')
                 ask_hermione(metadata_path)
+
             browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
 
     else:
@@ -198,11 +204,10 @@ def main(args):
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
 
-        json_path = None
-        metadata_path = ""
         if(metadata_flag):
             metadata_path = os.path.join(out_dir, 'meta_data')
             ask_hermione(metadata_path)
+
         browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
 
     add_hair(dicom_folders, zip_dir, log)
