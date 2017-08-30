@@ -1,3 +1,5 @@
+import os
+
 import dicom
 
 class DicomImage(object):
@@ -6,9 +8,16 @@ class DicomImage(object):
         self._dataset = dicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
+    def write_metadata(self, metadata_path):
+        metadata_filename = self.get_patient_id() + ".txt"
+        image_metadata_path = os.path.join(metadata_path, metadata_filename)
+        with open(image_metadata_path, "a") as my_file:
+            my_file.write(str(self._dataset))
+
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset
         if (key in _dataset):
+            #Get the Key and Value
             tag_number = _dataset.data_element(key).tag
             if delete:
                 del _dataset[tag_number]
@@ -33,8 +42,7 @@ class DicomImage(object):
                 return None
             elif(patient_id == id_pairs.get(key)):
                 return None
-            else:
-                return patient_id
+        return patient_id
 
     def get_value(self, key):
         _dataset = self._dataset
