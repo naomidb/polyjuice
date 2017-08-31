@@ -1,15 +1,17 @@
-#! /Library/Frameworks/Python.framework/Versions/2.7/bin/python
 docstr = """
 Polyjuice
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-lm]  (<input_path> <output_path>) [<config_file>]
-    polyjuice.py [-lcm] [<config_file>]
+    polyjuice.py [-lm]  <input_path> <output_path> <config_file> [-s=<subid>]
+    polyjuice.py [-lcm] (<config_file>) [-s=<subid>]
+
 Options:
   -h --help                     Show this message and exit
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
   -m --meta                     Get the MetaData
+  -s <subid> --subid=<subid>                    Set an explicit subject id for all the files. This works like the id csv
+
 Instructions:
     Run polyjuice on individual files, ISOs, or directories. This will give an ouput folder
 containing dicom files that have had their tags cleaned according to your standards set in the config file.
@@ -44,7 +46,7 @@ def go_to_library(config_path):
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
-    except:
+    except Exception as e:
         print("Error: Check config file")
         exit()
     return config
@@ -72,7 +74,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             else:
                 #Send file to be cleaned
                 brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log, metadata_path)
-        except Exception, e:
+        except Exception as e:
             print("{} failed".format(name))
             print (str(e))
             failure_message = "{} failed".format(name) + "\n" + str(e)
@@ -95,7 +97,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                         # Send file to be cleaned
                         brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, metadata_path)
 
-                except Exception, e:
+                except Exception as e:
                     print("{} failed".format(name))
                     print (str(e))
                     failure_message = "{} failed".format(name) + "\n" + str(e)
@@ -136,13 +138,13 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, met
             saving_message = "Saved to {}".format(identified_folder)
             log(saving_message)
 
-    except Exception, e:
+    except Exception as e:
         print("{} failed".format(name))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
     return
 
-def add_hair(dicom_folders, zip_dir, log):
+def zip_files(dicom_folders, zip_dir, log):
     #Zip folders with cleaned DICOM images and move them to zip directory specified in config file
     for folder in dicom_folders:
         shutil.make_archive(folder, 'zip', folder)
@@ -163,22 +165,36 @@ def find_config():
                 return os.path.join(path, name)
     exit('No config found')
 
+def get_id_mapping(config, args):
+    """
+    We want to support 1 to 1 mapping as well as specifiying a single
+    subject id for all files
+    """
+    if not args.get('--subid'):
+        reset_IDS = config.get('new_IDs')
+        try:
+            with open(reset_IDS, mode='r') as in_oldIDfile:
+                rows = csv.reader(in_oldIDfile)
+                id_pairs = {cols[0]:cols[1] for cols in rows}
+        except Exception as e:
+            print("Check CSV. \n" + str(e))
+            return
+        return id_pairs
+    else:
+        return {
+            '__ALL__': args.get('--subid')
+        }
+
 def main(args):
     if not args[CONFIG_PATH]:
         args[CONFIG_PATH] = find_config()
 
+    print(args)
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
     metadata_path = ""
 
-    reset_IDS = config.get('new_IDs')
-    try:
-        with open(reset_IDS, mode='r') as in_oldIDfile:
-            reader = csv.reader(in_oldIDfile)
-            id_pairs = {rows[0]:rows[1] for rows in reader}
-    except Exception, e:
-        print("Check CSV. \n" + str(e))
-        return
+    id_pairs = get_id_mapping(config, args)
 
     zip_dir = config.get('zip')
     print("zip folder " + str(zip_dir))
@@ -187,9 +203,10 @@ def main(args):
     metadata_flag = args[_obtain_data]
 
     if args[_use_config]:
-        #get from config file
+        # path roots for clean files
         in_root = config.get('in_data_root')
         out_root = config.get('out_data_root')
+        # dicts with 'input' and 'output' props that tell what to clean and where to put it
         io_pairs = config.get('io_pairs')
 
         for io_pair in io_pairs:
@@ -219,7 +236,7 @@ def main(args):
 
         browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
 
-    add_hair(dicom_folders, zip_dir, log)
+    zip_files(dicom_folders, zip_dir, log)
 
 def poly_run():
     args = docopt(docstr)

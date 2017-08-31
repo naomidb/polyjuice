@@ -1,5 +1,7 @@
 #Location for the zipped files
 zip: my/path/to/zip/folder
+
+# this is a csv that has a mapping of mrn's to study ides
 new_IDs: my/path/to/ids
 
 #This dictionary has a dictionary of tags whose value should be modified

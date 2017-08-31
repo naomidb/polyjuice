@@ -31,11 +31,17 @@ class DicomImage(object):
                 log(modify_message)
 
     def update_patient_id(self, id_pairs, log):
+        """
+        We need to clean the patient ID by mapping for deidentification purposes.
+
+        if the key __ALL__ exists in the id_pairs dictionary then use that for
+        the id mapping
+        """
         _dataset = self._dataset
         patient_id = self.get_patient_id()
-        for key in id_pairs:
-            if(patient_id == key):
-                new_id = id_pairs.get(patient_id)
+        for key, val in id_pairs.iteritems():
+            if(patient_id == key or key == '__ALL__'):
+                new_id = val
                 id_message = "{}: New ID: {}".format(self.filepath, new_id)
                 log(id_message)
                 self.modify_item('PatientID', new_id, False, log)
