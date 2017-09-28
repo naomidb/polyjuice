@@ -51,9 +51,13 @@ class DicomCaretaker(object):
         folder_name = patient_id + "_" + desired_study_date
         return folder_name
 
-    def save_output(self, image, identified_folder, filename):
+    def save_output(self, image, identified_folder, filename, get_metadata=False):
         output = os.path.join(identified_folder, filename)
         image.save_image(output)
+        if get_metadata:
+            metadata = image.serialize_metadata(indent=4)
+            with open(output + '.json', 'w') as metadata_file:
+                metadata_file.write(metadata)
 
     def unmount_iso(self):
         mount_location = self.mount_location

@@ -1,4 +1,6 @@
 import os
+import json
+from copy import copy
 
 import dicom
 
@@ -8,11 +10,38 @@ class DicomImage(object):
         self._dataset = dicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
-    def write_metadata(self, metadata_path):
-        metadata_filename = self.get_patient_id() + ".txt"
-        image_metadata_path = os.path.join(metadata_path, metadata_filename)
-        with open(image_metadata_path, "a") as my_file:
-            my_file.write(str(self._dataset))
+    def serialize_metadata(self, **kwargs):
+        metadata = {}
+        for key in self._dataset.dir():
+            element = self._dataset.data_element(key)
+            if key != 'PixelData':
+                if not element:
+                    metadata[key] = None
+                else:
+                    metadata[key] = self._process_data_element(element)
+            else:
+                # Dont serialize the pixel data since it isnt metadata
+                pass
+        return json.dumps(metadata, **kwargs)
+
+    def _process_data_element(self, element):
+        type_string = str(type(element))
+        if 'Sequence' in type_string or 'length' in repr(element):
+            return [self._process_data_element(item) for item in element]
+        elif 'Dataset' in type_string:
+            elements = [(key, element.data_element(key)) for key in element.dir()]
+            metadata = {}
+            for key, val in elements:
+                metadata[key] = self._process_data_element(val)
+            return metadata
+        else:
+            try:
+                return int(element.value)
+            except:
+                try:
+                    return float(element.value)
+                except:
+                    return str(element._value)
 
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset
@@ -62,5 +91,4 @@ class DicomImage(object):
         return self.get_value('PatientID')
 
     def save_image(self, out):
-        _dataset = self._dataset
-        _dataset.save_as(out)
+        self._dataset.save_as(out)

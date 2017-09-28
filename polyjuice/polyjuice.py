@@ -37,7 +37,7 @@ INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
 _print_log = '--log'
 _use_config = '--config'
-_obtain_data = '--meta'
+metadata_flag = '--meta'
 dicom_folders = []
 unknown_ids = []
 
@@ -59,7 +59,7 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, get_metadata):
     #Walk through directories and send individual files to be cleaned.
 
     editor = DicomCaretaker()
@@ -69,11 +69,11 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             if parent_file.endswith(".iso"):
                 # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
-                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
+                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, get_metadata)
                 editor.unmount_iso()
             else:
                 #Send file to be cleaned
-                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log, metadata_path)
+                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log, get_metadata)
         except Exception as e:
             print("{} failed".format(name))
             print (str(e))
@@ -91,11 +91,11 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     if check_file_type.endswith(".iso"):
                         # Mount and Unmount ISO
                         new_parent_dir = editor.mount_iso(working_file, out_dir)
-                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
+                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log, get_metadata)
                         editor.unmount_iso()
                     else:
                         # Send file to be cleaned
-                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, metadata_path)
+                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, get_metadata)
 
                 except Exception as e:
                     print("{} failed".format(name))
@@ -104,11 +104,12 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     log(failure_message)
     return
 
-def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, metadata_path=None):
+def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, get_metadata=False):
     """
     Use DicomCaretaker to clean files and find approprite folders to save the output
 
-    If metadata_path is passed a file with the tags of the image will be written to ....
+    If get_metadata is passed a file with the tags of the image will be written to the same
+    location as the image with the same name except for a .json extension
     """
     try:
 
@@ -119,8 +120,6 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, met
 
             image = DicomImage(working_file)
 
-            if metadata_path:
-                image.write_metadata(metadata_path)
 
             id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
 
@@ -134,7 +133,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, met
                 ask_hermione(identified_folder)
                 dicom_folders.append(identified_folder)
 
-            editor.save_output(image, identified_folder, name)
+            editor.save_output(image, identified_folder, name, get_metadata)
             saving_message = "Saved to {}".format(identified_folder)
             log(saving_message)
 
@@ -192,7 +191,7 @@ def main(args):
     print(args)
     config = go_to_library(args[CONFIG_PATH])
     modifications = config.get('modifications')
-    metadata_path = ""
+    get_metadata = args.get(metadata_flag)
 
     id_pairs = get_id_mapping(config, args)
 
@@ -200,7 +199,6 @@ def main(args):
     print("zip folder " + str(zip_dir))
 
     verbose = args[_print_log]
-    metadata_flag = args[_obtain_data]
 
     if args[_use_config]:
         # path roots for clean files
@@ -216,11 +214,7 @@ def main(args):
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
 
-            if(metadata_flag):
-                metadata_path = os.path.join(out_dir, 'meta_data')
-                ask_hermione(metadata_path)
-
-            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
+            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, get_metadata)
 
     else:
         #Loop through ISOs and subdirectories
@@ -230,11 +224,8 @@ def main(args):
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
 
-        if(metadata_flag):
-            metadata_path = os.path.join(out_dir, 'meta_data')
-            ask_hermione(metadata_path)
 
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, metadata_path)
+        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log, get_metadata)
 
     zip_files(dicom_folders, zip_dir, log)
 
