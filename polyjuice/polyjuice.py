@@ -122,8 +122,6 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, met
 
             id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
 
-            if id_issue:
-                return
 
             folder_name = editor.get_folder_name(image)
             identified_folder = os.path.join(out_dir, folder_name)
