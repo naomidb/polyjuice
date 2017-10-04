@@ -35,13 +35,7 @@ class DicomImage(object):
                 metadata[key] = self._process_data_element(val)
             return metadata
         else:
-            try:
-                return int(element.value)
-            except:
-                try:
-                    return float(element.value)
-                except:
-                    return str(element._value)
+            return str(element._value)
 
     def modify_item(self, key, value, delete, log=None):
         _dataset = self._dataset

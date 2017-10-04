@@ -39,7 +39,7 @@ If a file does not have the 'DICM' marker, it will fail. If a file you need to r
 
 *brew_potion()*: Send the dicom image files to be cleaned and otherwise modified. Find appropriate folder names.
 
-*add_hair()*: Archive the folders created.
+*zip_files()*: Archive the folders created.
 
 ## Making use of the config file
 

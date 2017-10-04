@@ -108,7 +108,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log, get
     """
     Use DicomCaretaker to clean files and find approprite folders to save the output
 
-    If get_metadata is passed a file with the tags of the image will be written to the same
+    If get_metadata is passed, a file with the tags of the image will be written to the same
     location as the image with the same name except for a .json extension
     """
     try:
