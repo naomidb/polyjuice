@@ -1,6 +1,8 @@
 import os
 import json
 from copy import copy
+import md5
+import base64
 
 import dicom
 
@@ -26,7 +28,7 @@ class DicomImage(object):
 
     def _process_data_element(self, element):
         type_string = str(type(element))
-        if 'Sequence' in type_string or 'length' in repr(element):
+        if 'Sequence' in type_string or 'length' in repr(element) or type_string == type([]):
             return [self._process_data_element(item) for item in element]
         elif 'Dataset' in type_string:
             elements = [(key, element.data_element(key)) for key in element.dir()]
@@ -37,7 +39,21 @@ class DicomImage(object):
         else:
             return str(element._value)
 
-    def modify_item(self, key, value, delete, log=None):
+    def _md5ify(self, item):
+        m = md5.new()
+        m.update(item)
+        return base64.encode(m.digest)
+
+    def modify_item(self, key, value, delete=False, log=None, obfuscate=False):
+        """
+        Changes the value of a key value pair in the dataset.
+
+        If delete is supplied the key value pair will be deleted.
+
+        If obfuscate is supplied the value will be the MD5 hash to keep 1 to 1
+        relationships around. The main purpose of this is to make sure that we
+        can tell if dicom slices come in a series
+        """
         _dataset = self._dataset
         if (key in _dataset):
             #Get the Key and Value
@@ -45,6 +61,9 @@ class DicomImage(object):
             if delete:
                 del _dataset[tag_number]
                 action = "deleted"
+            elif obfuscate:
+                _dataset[tag_number].value = self._md5ify(value)
+                action = "obfuscated"
             else:
                 _dataset[tag_number].value = value
                 action = "modified"
