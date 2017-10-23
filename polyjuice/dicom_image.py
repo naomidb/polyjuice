@@ -42,7 +42,7 @@ class DicomImage(object):
     def _md5ify(self, item):
         m = md5.new()
         m.update(item)
-        return base64.encode(m.digest)
+        return base64.b64encode(m.digest)
 
     def modify_item(self, key, value, delete=False, log=None, obfuscate=False):
         """
