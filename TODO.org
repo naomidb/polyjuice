@@ -12,6 +12,8 @@
 
 * Change the PatientsID to NACC format
 
+* Add to README: You must create "PET" and "MRI" directories on tools2 and you must make sftp connection manually before trying to do it with polyjuice
+
 ---------------------------------------------------
 
 # Complete

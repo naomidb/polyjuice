@@ -8,6 +8,7 @@ import csv
 class DicomCaretaker(object):
     is_iso = False
     mount_location = "myrtles_bathroom"
+    unknown_ids = []
 
     def mount_iso(self, iso_path, out):
         self.is_iso =  True
@@ -21,25 +22,24 @@ class DicomCaretaker(object):
 
         return mount_point
 
-    def scrub(self, image, modifications, id_pairs, log, unknown_ids):
+    def scrub(self, image, modifications, id_pairs, log):
         for key, value in modifications.items():
             delete = True if value == None else False
             image.modify_item(key, value, delete, log)
 
         id_issue = image.update_patient_id(id_pairs, log)
         if id_issue:
-            self.report_id(id_issue,log, unknown_ids)
-        return id_issue
+            self.report_id(id_issue, log)
 
-    def report_id(self,id_issue,log, unknown_ids):
-        if id_issue not in unknown_ids:
+    def report_id(self, id_issue, log):
+        if id_issue not in self.unknown_ids:
             location = log.get_location()
             error_csv =  os.path.join(location,"Missing_IDs.csv")
             with open(error_csv, "a+") as error_log:
                 error_log.write(id_issue+ "\n" )
             id_message = "Missing ID: {}".format(id_issue)
             log(id_message)
-            unknown_ids.append(id_issue)
+            self.unknown_ids.append(id_issue)
 
     def get_folder_name(self, image):
         study_date = image.get_study_date()

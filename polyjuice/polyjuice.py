@@ -5,6 +5,7 @@ Usage:
     polyjuice.py (-h | --help)
     polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
     polyjuice.py [-lzc] [<config_file>]
+
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
@@ -37,7 +38,6 @@ _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
 dicom_folders = []
-unknown_ids = []
 
 def go_to_library(config_path):
     #Read in the config file. If the config file is missing or the wrong format, exit the program.
@@ -112,10 +112,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
             # print working_message
             image = DicomImage(working_file)
 
-            id_issue = editor.scrub(image, modifications, id_pairs, log, unknown_ids)
-
-            if id_issue:
-                return
+            editor.scrub(image, modifications, id_pairs, log)
 
             folder_name = editor.get_folder_name(image)
             identified_folder = os.path.join(out_dir, folder_name)
@@ -155,13 +152,12 @@ def main(args):
 
     reset_IDS = config.get('new_IDs')
     try:
-        id_matches = config.get('new_patient_ids')
         with open(reset_IDS, mode='r') as in_oldIDfile:
             reader = csv.reader(in_oldIDfile)
             id_pairs = {rows[0]:rows[1] for rows in reader}
     except Exception, e:
         print("Check CSV. \n" + str(e))
-        id_pairs = {}
+        return
 
     if args[_zip_folder]:
         zip_dir = config.get('zip')

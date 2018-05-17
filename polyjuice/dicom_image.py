@@ -1,9 +1,9 @@
-import dicom
+import pydicom
 
 class DicomImage(object):
 
     def __init__(self, dicom_file):
-        self._dataset = dicom.read_file(dicom_file)
+        self._dataset = pydicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
     def modify_item(self, key, value, delete, log=None):
@@ -33,8 +33,7 @@ class DicomImage(object):
                 return None
             elif(patient_id == id_pairs.get(key)):
                 return None
-            else:
-                return patient_id
+        return patient_id
 
     def get_value(self, key):
         _dataset = self._dataset

@@ -1,6 +1,6 @@
 #Location for the zipped files
-zip: /my/path/to/zipped_folders
-new_IDs: /Users/amineni95/Desktop/Projects/polyjuice/polyjuice/ids.csv
+zip: /my/path/to/zip/folder
+new_IDs: /my/path/to/ids.csv
 
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
@@ -33,7 +33,7 @@ modifications:
   #OtherPatientNames:
   PatientAge: ''
   #PatientSize:
-  PatientWeight: ''
+  #PatientWeight: ''
   #MedicalRecordLocator:
   EthnicGroup: ''
   #Occupation:

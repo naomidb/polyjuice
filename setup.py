@@ -8,4 +8,4 @@ setup(name='polyjuice',
     author_email='naomi.d.braun@gmail.com, ajantha.5779@gmail.com',
     license='Apache 2.0',
     packages=find_packages(),
-    install_requires=['docopt', 'pydicom', 'PyYaml'])
+    install_requires=['docopt', 'pydicom==1.0.2', 'PyYaml'])
