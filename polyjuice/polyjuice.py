@@ -35,7 +35,6 @@ OUTPUT_DIR = '<output_path>'
 _print_log = '--log'
 _zip_folder = '--zip'
 _use_config = '--config'
-dicom_folders = []
 
 def go_to_library(config_path):
     # Read in the config file. If the config file is missing or the wrong format, exit the program.
@@ -55,7 +54,7 @@ def ask_hermione(out_dir):
         except Exception as e:
             raise e
 
-def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
+def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log):
     # Walk through directories and send individual files to be cleaned.
     editor = DicomCaretaker()
 
@@ -64,11 +63,11 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             if parent_file.endswith(".iso"):
                 # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
-                browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                dicom_folders = browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_fodlers, log)
                 editor.unmount_iso()
             else:
                 # Send file to be cleaned
-                brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
+                dicom_folders = brew_potion(editor, parent_file, out_dir, modifications, id_pairs, dicom_folders, log)
         except Exception, e:
             print("{} failed".format(name))
             print (str(e))
@@ -86,23 +85,22 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                     if check_file_type.endswith(".iso"):
                         # Mount and Unmount ISO
                         new_parent_dir = editor.mount_iso(working_file, out_dir)
-                        browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
+                        dicom_folders = browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
                         editor.unmount_iso()
                     else:
                         # Send file to be cleaned
-                        brew_potion(editor, working_file, out_dir, modifications, id_pairs, log)
+                        dicom_folders = brew_potion(editor, working_file, out_dir, modifications, id_pairs, dicom_folders, log)
 
                 except Exception, e:
                     print("{} failed".format(name))
                     print (str(e))
                     failure_message = "{} failed".format(name) + "\n" + str(e)
                     log(failure_message)
-    return
+    return dicom_folders
 
-def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
+def brew_potion(editor, working_file, out_dir, modifications, id_pairs, dicom_folders, log):
     # Use DicomCaretaker to clean files and find approprite folders to save the output
     try:
-
         name = os.path.basename(working_file)
         with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
@@ -126,7 +124,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
         print("{} failed".format(name))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
-    return
+    return dicom_folders
 
 def add_hair(dicom_folders, zip_dir, log):
     # Zip folders with cleaned DICOM images and move them to zip directory specified in config file
@@ -164,6 +162,7 @@ def main(args):
 
     verbose = args[_print_log]
 
+    dicom_folders = []
     if args[_use_config]:
         # Get inputs/outputs from config file
         in_root = config.get('in_data_root')
@@ -176,7 +175,7 @@ def main(args):
             log_path = os.path.join(out_dir, 'log.txt')
             log = Lumberjack(log_path, verbose)
             parent_file = os.path.join(in_root, io_pair['input'])
-            browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+            dicom_folders = browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
 
     else:
         # Loop through ISOs and subdirectories
@@ -185,7 +184,7 @@ def main(args):
         ask_hermione(out_dir)
         log_path = os.path.join(out_dir, 'log.txt')
         log = Lumberjack(log_path, verbose)
-        browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
+        dicom_folders = browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
 
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)
