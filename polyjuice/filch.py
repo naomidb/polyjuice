@@ -45,9 +45,9 @@ class DicomCaretaker(object):
         study_date = image.get_study_date()
         patient_id = image.get_patient_id()
 
-        #Change study_date to desired format
+        # Change study_date to desired format
         desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m_%d_%Y')
-        #Rename according to NACC conventions
+        # Rename according to NACC conventions
         folder_name = patient_id + "_" + desired_study_date
         return folder_name
 
@@ -61,5 +61,5 @@ class DicomCaretaker(object):
             if platform.system() == 'Darwin':
                 os.system("hdiutil unmount %s/ISOImage" % mount_location)
             elif platform.system() == 'Linux':
-                os.system("sudo unmount %s/ISOImage" % mount_location)
+                os.system("sudo umount %s/ISOImage" % mount_location)
             os.system("rmdir %s" % mount_location)
