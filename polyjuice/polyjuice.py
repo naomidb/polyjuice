@@ -11,13 +11,11 @@ Options:
   -z --zip                      Archives the output folder
   -l --log                      Give progress of program
   -c --config                   Use config file to get input and output paths
+
 Instructions:
     Run polyjuice on individual files, ISOs, or directories. This will give an ouput folder
-containing dicom files that have had their tags cleaned according to your standards set in the config file.
-$ ./polyjuice.py path/to/input path/to/output
-If you put your inputs and outputs in the config file, you can use the flag -c and write:
-$ ./polyjuice.py
-In order to ZIP your Cleaned Output Directory, add the -z flag.
+    containing dicom files that have had their tags cleaned according to your standards set
+    in the config file.
 """
 
 import os
@@ -40,7 +38,7 @@ _use_config = '--config'
 dicom_folders = []
 
 def go_to_library(config_path):
-    #Read in the config file. If the config file is missing or the wrong format, exit the program.
+    # Read in the config file. If the config file is missing or the wrong format, exit the program.
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read())
@@ -50,7 +48,7 @@ def go_to_library(config_path):
     return config
 
 def ask_hermione(out_dir):
-    #Check if directory exists. If not, create it.
+    # Check if directory exists. If not, create it.
     if not os.path.exists(out_dir):
         try:
             os.makedirs(out_dir)
@@ -58,7 +56,7 @@ def ask_hermione(out_dir):
             raise e
 
 def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log):
-    #Walk through directories and send individual files to be cleaned.
+    # Walk through directories and send individual files to be cleaned.
     editor = DicomCaretaker()
 
     if os.path.isfile(parent_file):
@@ -69,7 +67,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                 browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, log)
                 editor.unmount_iso()
             else:
-                #Send file to be cleaned
+                # Send file to be cleaned
                 brew_potion(editor, parent_file, out_dir, modifications, id_pairs, log)
         except Exception, e:
             print("{} failed".format(name))
@@ -102,14 +100,13 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
     return
 
 def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
-    #Use DicomCaretaker to clean files and find approprite folders to save the output
+    # Use DicomCaretaker to clean files and find approprite folders to save the output
     try:
 
         name = os.path.basename(working_file)
         with open(working_file) as working_file:
             working_message = "Working on {}".format(name)
             log(working_message)
-            # print working_message
             image = DicomImage(working_file)
 
             editor.scrub(image, modifications, id_pairs, log)
@@ -132,7 +129,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, log):
     return
 
 def add_hair(dicom_folders, zip_dir, log):
-    #Zip folders with cleaned DICOM images and move them to zip directory specified in config file
+    # Zip folders with cleaned DICOM images and move them to zip directory specified in config file
     for folder in dicom_folders:
         shutil.make_archive(folder, 'zip', folder)
         zipped_message = "{} archived".format(folder)
@@ -168,7 +165,7 @@ def main(args):
     verbose = args[_print_log]
 
     if args[_use_config]:
-        #get from config file
+        # Get inputs/outputs from config file
         in_root = config.get('in_data_root')
         out_root = config.get('out_data_root')
         io_pairs = config.get('io_pairs')
@@ -182,7 +179,7 @@ def main(args):
             browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_pairs, log)
 
     else:
-        #Loop through ISOs and subdirectories
+        # Loop through ISOs and subdirectories
         parent_file = args[INPUT_DIR]
         out_dir = args[OUTPUT_DIR]
         ask_hermione(out_dir)
@@ -193,7 +190,6 @@ def main(args):
     if zip_dir:
         add_hair(dicom_folders, zip_dir, log)
 
-# Integrating Things with Docopt
 if __name__ == '__main__':
     args = docopt(docstr)
     main(args)
