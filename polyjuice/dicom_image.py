@@ -20,6 +20,10 @@ class DicomImage(object):
             if log:
                 modify_message = "{}: {} {}".format(self.filepath, key, action)
                 log(modify_message)
+        else:
+            if log:
+                modify_message = "{}: {} not present".format(self.filepath, key)
+                log(modify_message)
 
     def update_patient_id(self, id_pairs, log):
         _dataset = self._dataset
