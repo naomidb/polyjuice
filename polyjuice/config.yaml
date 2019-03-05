@@ -4,55 +4,55 @@ new_IDs: /my/path/to/ids.csv
 
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
-  #InstanceCreatorUID:
+  InstanceCreatorUID: ''
   SOPInstanceUID: ''
   AccessionNumber: ''
   InstitutionName: ''
-  #InstitutionAddress:
+  InstitutionAddress:
   ReferringPhysicianName: ''
-  #ReferringPhysicianAddress:
-  #ReferringPhysicianTelephoneNumbers:
+  ReferringPhysicianAddress: ''
+  ReferringPhysicianTelephoneNumbers: ''
   StationName: ''
   StudyDescription: ''
   SeriesDescription: ''
   RequestingPhysician: ''
-  #InstitutionalDepartmentName:
+  InstitutionalDepartmentName: ''
   PhysiciansOfRecord: ''
-  #PerformingPhysicianName:
-  #NameOfPhysicianReadingStudy:
-  #OperatorName:
-  #AdmittingDiadnosesDescription:
-  #ReferencedSOPInstanceUID:
-  #DerivationDescription:
+  PerformingPhysicianName: ''
+  NameOfPhysicianReadingStudy: ''
+  OperatorName: ''
+  AdmittingDiadnosesDescription: ''
+  ReferencedSOPInstanceUID: ''
+  DerivationDescription: ''
   PatientName: Anonymous
-  #PatientID:
+  #PatientID: ''
   PatientBirthDate: "19990909"
-  #PatientBirthTime:
+  PatientBirthTime: ''
   PatientSex: ''
-  #OtherPatientIDs:
-  #OtherPatientNames:
+  OtherPatientIDs: ''
+  OtherPatientNames: ''
   PatientAge: ''
-  #PatientSize:
-  #PatientWeight: ''
-  #MedicalRecordLocator:
+  PatientSize: ''
+  PatientWeight: ''
+  MedicalRecordLocator: ''
   EthnicGroup: ''
-  #Occupation:
-  #AdditionalPatientHistory:
-  #PatientComments:
-  #DeviceSerialNumber:
+  Occupation: ''
+  AdditionalPatientHistory: ''
+  PatientComments: ''
+  DeviceSerialNumber: ''
   ProtocolName: ''
   StudyInstanceUID: ''
   SeriesInstanceUID: ''
   StudyID: ''
-  #FrameOfReferenceUID:
-  #SynchronizationonFrameOfReferenceUID:
-  #ImageComments:
-  #RequestAttributesSequence:
-  #UID:
-  #ContentSequence:
-  #StorageMediaFileSetUID:
-  #ReferencedFrameOfReferenceUID:
-  #RelatedFrameOfReferenceUID:
+  FrameOfReferenceUID: ''
+  SynchronizationonFrameOfReferenceUID: ''
+  ImageComments: ''
+  RequestAttributesSequence: ''
+  UID: ''
+  ContentSequence: ''
+  StorageMediaFileSetUID: ''
+  ReferencedFrameOfReferenceUID: ''
+  RelatedFrameOfReferenceUID: ''
   RescaleIntercept: Null
   RescaleSlope: Null
   RescaleType: Null
