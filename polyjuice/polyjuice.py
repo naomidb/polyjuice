@@ -3,13 +3,13 @@ docstr = """
 Polyjuice
 Usage:
     polyjuice.py (-h | --help)
-    polyjuice.py [-lz]  (<input_path> <output_path>) [<config_file>]
-    polyjuice.py [-lzc] [<config_file>]
+    polyjuice.py [-vz]  (<input_path> <output_path>) [<config_file>]
+    polyjuice.py [-vzc] [<config_file>]
 
 Options:
   -h --help                     Show this message and exit
   -z --zip                      Archives the output folder
-  -l --log                      Give progress of program
+  -v --verbose                  Give progress of program in terminal
   -c --config                   Use config file to get input and output paths
 
 Instructions:
@@ -32,7 +32,7 @@ from dicom_image import DicomImage
 CONFIG_PATH = '<config_file>'
 INPUT_DIR = '<input_path>'
 OUTPUT_DIR = '<output_path>'
-_print_log = '--log'
+_verbose = '--verbose'
 _zip_folder = '--zip'
 _use_config = '--config'
 
@@ -68,7 +68,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             else:
                 # Send file to be cleaned
                 dicom_folders = brew_potion(editor, parent_file, out_dir, modifications, id_pairs, dicom_folders, log)
-        except Exception, e:
+        except Exception as e:
             print("{} failed".format(name))
             print (str(e))
             failure_message = "{} failed".format(name) + "\n" + str(e)
@@ -91,7 +91,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                         # Send file to be cleaned
                         dicom_folders = brew_potion(editor, working_file, out_dir, modifications, id_pairs, dicom_folders, log)
 
-                except Exception, e:
+                except Exception as e:
                     print("{} failed".format(name))
                     print (str(e))
                     failure_message = "{} failed".format(name) + "\n" + str(e)
@@ -120,7 +120,7 @@ def brew_potion(editor, working_file, out_dir, modifications, id_pairs, dicom_fo
             saving_message = "Saved to {}".format(identified_folder)
             log(saving_message)
 
-    except Exception, e:
+    except Exception as e:
         print("{} failed".format(name))
         failure_message = "{} failed".format(name) + "\n" + str(e)
         log(failure_message)
@@ -150,7 +150,7 @@ def main(args):
         with open(reset_IDS, mode='r') as in_oldIDfile:
             reader = csv.reader(in_oldIDfile)
             id_pairs = {rows[0]:rows[1] for rows in reader}
-    except Exception, e:
+    except Exception as e:
         print("Check CSV. \n" + str(e))
         return
 
@@ -160,7 +160,7 @@ def main(args):
     else:
         zip_dir = None
 
-    verbose = args[_print_log]
+    verbose = args[_verbose]
 
     dicom_folders = []
     if args[_use_config]:
