@@ -1,57 +1,58 @@
 #Location for the zipped files
-zip: /my/path/to/zipped_folders
+zip: /my/path/to/zip/folder
 new_IDs: /my/path/to/ids.csv
 
 #This dictionary has a dictionary of tags whose value should be modified
 modifications:
-  #InstanceCreatorUID:
+  InstanceCreatorUID: ''
   SOPInstanceUID: ''
   AccessionNumber: ''
   InstitutionName: ''
-  #InstitutionAddress:
+  InstitutionAddress:
   ReferringPhysicianName: ''
-  #ReferringPhysicianAddress:
-  #ReferringPhysicianTelephoneNumbers:
+  ReferringPhysicianAddress: ''
+  ReferringPhysicianTelephoneNumbers: ''
   StationName: ''
   StudyDescription: ''
   SeriesDescription: ''
-  #InstitutionalDepartmentName:
-  #PhysicianOfRecord:
-  #PerformingPhysicianName:
-  #NameOfPhysicianReadingStudy:
-  #OperatorName:
-  #AdmittingDiadnosesDescription:
-  #ReferencedSOPInstanceUID:
-  #DerivationDescription:
+  RequestingPhysician: ''
+  InstitutionalDepartmentName: ''
+  PhysiciansOfRecord: ''
+  PerformingPhysicianName: ''
+  NameOfPhysicianReadingStudy: ''
+  OperatorName: ''
+  AdmittingDiadnosesDescription: ''
+  ReferencedSOPInstanceUID: ''
+  DerivationDescription: ''
   PatientName: Anonymous
-  #PatientID: 
+  #PatientID: ''
   PatientBirthDate: "19990909"
-  #PatientBirthTime:
+  PatientBirthTime: ''
   PatientSex: ''
-  #OtherPatientIDs:
-  #OtherPatientNames:
+  OtherPatientIDs: ''
+  OtherPatientNames: ''
   PatientAge: ''
-  #PatientSize:
+  PatientSize: ''
   PatientWeight: ''
-  #MedicalRecordLocator:
+  MedicalRecordLocator: ''
   EthnicGroup: ''
-  #Occupation:
-  #AdditionalPatientHistory:
-  #PatientComments:
-  #DeviceSerialNumber:
+  Occupation: ''
+  AdditionalPatientHistory: ''
+  PatientComments: ''
+  DeviceSerialNumber: ''
   ProtocolName: ''
   StudyInstanceUID: ''
   SeriesInstanceUID: ''
   StudyID: ''
-  #FrameOfReferenceUID:
-  #SynchronizationonFrameOfReferenceUID:
-  #ImageComments:
-  #RequestAttributesSequence:
-  #UID:
-  #ContentSequence:
-  #StorageMediaFileSetUID:
-  #ReferencedFrameOfReferenceUID:
-  #RelatedFrameOfReferenceUID:
+  FrameOfReferenceUID: ''
+  SynchronizationonFrameOfReferenceUID: ''
+  ImageComments: ''
+  RequestAttributesSequence: ''
+  UID: ''
+  ContentSequence: ''
+  StorageMediaFileSetUID: ''
+  ReferencedFrameOfReferenceUID: ''
+  RelatedFrameOfReferenceUID: ''
   RescaleIntercept: Null
   RescaleSlope: Null
   RescaleType: Null
@@ -67,6 +68,3 @@ io_pairs:
     output: output_folder1
   - input: example/directory
     output: output_folder2
-
-ignore:
-  - .DS_Store

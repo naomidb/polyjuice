@@ -22,6 +22,12 @@ Example
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 
+##[0.2.0]
+ * Fix id_pairs bug
+ * Remove vulnerable libraries from requirements
+ * Gracefully handle missing tags
+ * Fix typo in Linux unmount command
+
 ##[0.1.0]
  * Add DicomImage class
  * Add logger (Lumberjack)

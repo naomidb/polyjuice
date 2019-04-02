@@ -1,9 +1,9 @@
-import dicom
+import pydicom
 
 class DicomImage(object):
 
     def __init__(self, dicom_file):
-        self._dataset = dicom.read_file(dicom_file)
+        self._dataset = pydicom.read_file(dicom_file)
         self.filepath = dicom_file.name
 
     def modify_item(self, key, value, delete, log=None):
@@ -20,15 +20,24 @@ class DicomImage(object):
             if log:
                 modify_message = "{}: {} {}".format(self.filepath, key, action)
                 log(modify_message)
+        else:
+            if log:
+                modify_message = "{}: {} not present".format(self.filepath, key)
+                log(modify_message)
 
     def update_patient_id(self, id_pairs, log):
         _dataset = self._dataset
         patient_id = self.get_patient_id()
-        if (patient_id in id_pairs):
-            new_id = id_pairs.get(patient_id)
-            id_message = "{}: New ID: {}".format(self.filepath, new_id)
-            log(id_message)
-            self.modify_item('PatientID', new_id, False, log)
+        for key in id_pairs:
+            if(patient_id == key):
+                new_id = id_pairs.get(patient_id)
+                id_message = "{}: New ID: {}".format(self.filepath, new_id)
+                log(id_message)
+                self.modify_item('PatientID', new_id, False, log)
+                return None
+            elif(patient_id == id_pairs.get(key)):
+                return None
+        return patient_id
 
     def get_value(self, key):
         _dataset = self._dataset

@@ -3,10 +3,12 @@ import os.path
 import platform
 import datetime
 import time
+import csv
 
 class DicomCaretaker(object):
     is_iso = False
     mount_location = "myrtles_bathroom"
+    unknown_ids = []
 
     def mount_iso(self, iso_path, out):
         self.is_iso =  True
@@ -25,15 +27,27 @@ class DicomCaretaker(object):
             delete = True if value == None else False
             image.modify_item(key, value, delete, log)
 
-        image.update_patient_id(id_pairs, log)
+        id_issue = image.update_patient_id(id_pairs, log)
+        if id_issue:
+            self.report_id(id_issue, log)
+
+    def report_id(self, id_issue, log):
+        if id_issue not in self.unknown_ids:
+            location = log.get_location()
+            error_csv =  os.path.join(location,"Missing_IDs.csv")
+            with open(error_csv, "a+") as error_log:
+                error_log.write(id_issue+ "\n" )
+            id_message = "Missing ID: {}".format(id_issue)
+            log(id_message)
+            self.unknown_ids.append(id_issue)
 
     def get_folder_name(self, image):
         study_date = image.get_study_date()
         patient_id = image.get_patient_id()
 
-        #Change study_date to desired format
-        desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m-%d-%Y')
-        #Rename according to NACC conventions
+        # Change study_date to desired format
+        desired_study_date = datetime.datetime.strptime(study_date,'%Y%m%d').strftime('%m_%d_%Y')
+        # Rename according to NACC conventions
         folder_name = patient_id + "_" + desired_study_date
         return folder_name
 
@@ -47,5 +61,5 @@ class DicomCaretaker(object):
             if platform.system() == 'Darwin':
                 os.system("hdiutil unmount %s/ISOImage" % mount_location)
             elif platform.system() == 'Linux':
-                os.system("sudo unmount %s/ISOImage" % mount_location)
+                os.system("sudo umount %s/ISOImage" % mount_location)
             os.system("rmdir %s" % mount_location)

@@ -25,9 +25,9 @@ You can also use the `-z` or `--zip` flag to archive the output folders. The des
 
 Note that neither the output directory nor the archive directory need exist before running the program. If they do not exist, Polyjuice will make them for you.
 
-If a file does not have the 'DICM' marker, it will fail. This is generally the behavior you want to happen. If a dicom file you need to read is failing, you can add `force=True` on `read_file` (in filch).
+If a file does not have the 'DICM' marker, it will fail. If a file you need to read is failing, you can add `force=True` on `read_file` (in dicom_image).
 
-`dataset = dicom.read_file(working_file, force=True)`
+`self._dataset = dicom.read_file(dicom_file, force=True)`
 
 ## Polyjuice walk-through
 
