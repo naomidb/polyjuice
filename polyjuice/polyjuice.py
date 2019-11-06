@@ -40,10 +40,10 @@ def go_to_library(config_path):
     # Read in the config file. If the config file is missing or the wrong format, exit the program.
     try:
         with open(config_path, 'r') as config_file:
-            config = yaml.load(config_file.read())
-    except:
+            config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
+    except Exception as e:
         print("Error: Check config file")
-        exit()
+        exit(e)
     return config
 
 def ask_hermione(out_dir):
@@ -63,7 +63,7 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
             if parent_file.endswith(".iso"):
                 # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
-                dicom_folders = browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_fodlers, log)
+                dicom_folders = browse_restricted_section(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
                 editor.unmount_iso()
             else:
                 # Send file to be cleaned
