@@ -69,9 +69,9 @@ def browse_restricted_section(parent_file, out_dir, zip_dir, modifications, id_p
                 # Send file to be cleaned
                 dicom_folders = brew_potion(editor, parent_file, out_dir, modifications, id_pairs, dicom_folders, log)
         except Exception as e:
-            print("{} failed".format(name))
+            print("{} failed".format(parent_file))
             print (str(e))
-            failure_message = "{} failed".format(name) + "\n" + str(e)
+            failure_message = "{} failed".format(parent_file) + "\n" + str(e)
             log(failure_message)
 
     else:
