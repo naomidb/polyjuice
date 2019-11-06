@@ -36,8 +36,11 @@ _verbose = '--verbose'
 _zip_folder = '--zip'
 _use_config = '--config'
 
-def get_config(config_path):
-    # Read in the config file. If the config file is missing or the wrong format, exit the program.
+
+def get_config(config_path: str) -> dict:
+    '''
+        Read in the config file. If the config file is missing or the wrong format, exit the program.
+    '''
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
@@ -46,16 +49,21 @@ def get_config(config_path):
         exit(e)
     return config
 
-def check_directory(out_dir):
-    # Check if directory exists. If not, create it.
+def check_directory(out_dir: str) -> None:
+    '''
+        Check if directory exists. If not, create it.
+    '''
     if not os.path.exists(out_dir):
         try:
             os.makedirs(out_dir)
         except Exception as e:
             raise e
 
-def walk_directory(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log):
-    # Walk through directories and send individual files to be cleaned.
+def walk_directory(parent_file: str, out_dir: str, zip_dir: str, modifications: dict,
+                    id_pairs: dict, dicom_folders: list, log: Lumberjack) -> list:
+    '''
+        Walk through directories and send individual files to be cleaned.
+    '''
     editor = DicomCaretaker()
 
     if os.path.isfile(parent_file):
@@ -63,11 +71,13 @@ def walk_directory(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom
             if parent_file.endswith(".iso"):
                 # Mount and unmount ISO
                 new_parent_dir = editor.mount_iso(parent_file, out_dir)
-                dicom_folders = walk_directory(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
+                dicom_folders = walk_directory(new_parent_dir, out_dir, zip_dir,
+                                    modifications, id_pairs, dicom_folders, log)
                 editor.unmount_iso()
             else:
                 # Send file to be cleaned
-                dicom_folders = clean_files(editor, parent_file, out_dir, modifications, id_pairs, dicom_folders, log)
+                dicom_folders = clean_files(editor, parent_file, out_dir,
+                                    modifications, id_pairs, dicom_folders, log)
         except Exception as e:
             print("{} failed".format(parent_file))
             print (str(e))
@@ -85,11 +95,13 @@ def walk_directory(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom
                     if check_file_type.endswith(".iso"):
                         # Mount and Unmount ISO
                         new_parent_dir = editor.mount_iso(working_file, out_dir)
-                        dicom_folders = walk_directory(new_parent_dir, out_dir, zip_dir, modifications, id_pairs, dicom_folders, log)
+                        dicom_folders = walk_directory(new_parent_dir, out_dir, zip_dir,
+                                            modifications, id_pairs, dicom_folders, log)
                         editor.unmount_iso()
                     else:
                         # Send file to be cleaned
-                        dicom_folders = clean_files(editor, working_file, out_dir, modifications, id_pairs, dicom_folders, log)
+                        dicom_folders = clean_files(editor, working_file, out_dir,
+                                            modifications, id_pairs, dicom_folders, log)
 
                 except Exception as e:
                     print("{} failed".format(name))
@@ -98,8 +110,12 @@ def walk_directory(parent_file, out_dir, zip_dir, modifications, id_pairs, dicom
                     log(failure_message)
     return dicom_folders
 
-def clean_files(editor, working_file, out_dir, modifications, id_pairs, dicom_folders, log):
-    # Use DicomCaretaker to clean files and find approprite folders to save the output
+def clean_files(editor: DicomCaretaker, working_file: str, out_dir: str,
+                modifications: dict, id_pairs: dict, dicom_folders: list,
+                log: Lumberjack) -> list:
+    '''
+        Use DicomCaretaker to clean files and find approprite folders to save the output
+    '''
     try:
         name = os.path.basename(working_file)
         with open(working_file) as working_file:
@@ -126,8 +142,11 @@ def clean_files(editor, working_file, out_dir, modifications, id_pairs, dicom_fo
         log(failure_message)
     return dicom_folders
 
-def zip_folder(dicom_folders, zip_dir, log):
-    # Zip folders with cleaned DICOM images and move them to zip directory specified in config file
+def zip_folder(dicom_folders: list, zip_dir: str, log: Lumberjack) -> None:
+    '''
+        Zip folders with cleaned DICOM images and
+        move them to zip directory specified in config file
+    '''
     for folder in dicom_folders:
         shutil.make_archive(folder, 'zip', folder)
         zipped_message = "{} archived".format(folder)
