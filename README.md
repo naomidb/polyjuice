@@ -6,6 +6,7 @@ Polyjuice will anonymize dicom files. What gets modified or deleted can easily b
 ## Requirements
 
 Polyjuice works on OSX and Linux.
+Use with Python 3.
 
 ## Using polyjuice
 
@@ -28,18 +29,6 @@ Note that neither the output directory nor the archive directory need exist befo
 If a file does not have the 'DICM' marker, it will fail. If a file you need to read is failing, you can add `force=True` on `read_file` (in dicom_image).
 
 `self._dataset = dicom.read_file(dicom_file, force=True)`
-
-## Polyjuice walk-through
-
-*go_to_library()*: Retrieve the config file
-
-*ask_hermione()*: Check if the given directory exists. If it does not, create it.
-
-*browse_restricted_section()*: Walk through input directory and send individual files to brew_potion(). If the file is an iso, mount it and call itself to walk through the mounted image.
-
-*brew_potion()*: Send the dicom image files to be cleaned and otherwise modified. Find appropriate folder names.
-
-*add_hair()*: Archive the folders created.
 
 ## Making use of the config file
 
